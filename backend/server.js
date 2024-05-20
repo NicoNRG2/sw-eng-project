@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dbConnectionString = require('./dbConfig');
 const productRoutes = require('./routes/productRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,6 +26,8 @@ mongoose.connect(dbConnectionString)
 
 // Use routes for products
 app.use('/api/products', productRoutes);
+// Use routes for reviews
+app.use('/api/reviews', reviewRoutes);
 
 // Start the server
 app.listen(PORT, () => {
