@@ -25,6 +25,20 @@ const getReviewById = async (req, res) => {
   }
 };
 
+// Function to get reviews by product ID
+const getReviewsByProductId = async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const reviews = await Review.find({ product: productId }).populate('product', 'name').populate('user', 'name');
+    if (reviews.length === 0) {
+      return res.status(404).json({ message: 'No reviews found for this product' });
+    }
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Function to get the average rating of a product
 const getProductRatingAverage = async (req, res) => {
   try {
@@ -42,7 +56,7 @@ const getProductRatingAverage = async (req, res) => {
   }
 };
 
-// Function to create a review
+// Function to create a new review
 const createReview = async (req, res) => {
   const { rating, comment, product, user } = req.body;
 
@@ -107,6 +121,7 @@ const deleteReview = async (req, res) => {
 module.exports = {
   getAllReviews,
   getReviewById,
+  getReviewsByProductId,  // New function
   getProductRatingAverage,
   createReview,
   updateReview,
