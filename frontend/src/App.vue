@@ -15,7 +15,7 @@
 
       <v-row>
         <!-- Left side with indications-->
-        <v-col cols="12" md="6">
+        <v-col cols="6">
 
           <v-card class="elevation-10" color="brown darken-4" dark>
             
@@ -29,8 +29,25 @@
                 <li> Easy products consultation;</li>
                 <li> Always up-to-date products availability;</li>
                 <li> ...</li>
+                <li> ...</li>
+                <li> ...</li>
               </ul>
             </v-cart-text>
+
+            <v-card-title class="white--text">
+              Getting started:
+            </v-card-title>
+
+            <v-cart-text>
+              You can consult the products list evan if you are not registered yet.
+              If you want to purchase something, let's log in:
+
+              <ul class="white--text list-style-disc">
+                <li> ...</li>
+                <li> ...</li>
+              </ul>
+            </v-cart-text>
+
           </v-card>
 
 
@@ -39,9 +56,9 @@
         </v-col>
 
         <!-- Right side with Bakery4You logo -->
-        <v.col cols="12" md="6" class="text-md-right">
-          <div>
-            <img :src="logo" alt="" style="max-width:30%; height: auto; margin-top: -125px">
+        <v.col cols="6">
+          <div style="text-align:right">
+            <img :src="logo" alt="" style="max-width:30%; height: auto; margin-top: -350px">
           </div>
         </v.col>
       </v-row>
