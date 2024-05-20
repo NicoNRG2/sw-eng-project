@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dbConnectionString = require('./dbConfig');
 const productRoutes = require('./routes/productRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,6 +26,8 @@ mongoose.connect(dbConnectionString)
 
 // Use routes for products
 app.use('/api/products', productRoutes);
+// Use routes for users
+app.use('/api/users', userRoutes);
 
 // Start the server
 app.listen(PORT, () => {
