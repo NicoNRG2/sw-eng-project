@@ -8,6 +8,9 @@ router.get('/', productController.getAllProducts);
 // Route to get a single product by ID
 router.get('/:id', productController.getProductById);
 
+// Route to get products by type
+router.get('/type/:type', productController.getProductsByType);
+
 // Route to create a new product
 router.post('/', productController.createProduct);
 
