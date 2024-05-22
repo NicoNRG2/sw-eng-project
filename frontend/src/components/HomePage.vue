@@ -30,7 +30,7 @@
           </v-col>
           <v-col cols="6">
             <div style="text-align:right">
-              <img :src="logo" alt="" style="max-width:30%; height: auto; margin-top: -350px">
+              <img :src="logo" alt="" style="max-width:60%; height: auto; margin-top: 25vh">
             </div>
           </v-col>
         </v-row>
@@ -63,12 +63,12 @@
   
   .v-card {
     width: 100%;
-    height: 100%;
-    max-width: 400px;
-    margin-left: -35px;
-    padding-left: 35px;
-    padding-top: -50px;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    height: 40%;
+    max-width: 500px;
+    margin-left: -25px;
+    padding-left: 25vw;
+    padding-top: -50vh;
+    margin-top: 15vh;
+    margin-bottom: 15vh;
   }
   </style>
