@@ -159,7 +159,7 @@ export default {
         </v-col>
         <v-col cols="6">
           <div style="text-align:right">
-            <img :src="logo" alt="" style="max-width:30%; height: auto; margin-top: -350px">
+            <img :src="logo" alt="" style="max-width:50%; height: auto; margin-top: 200px">
           </div>
         </v-col>
       </v-row>
