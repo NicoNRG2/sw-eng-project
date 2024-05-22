@@ -20,6 +20,11 @@ const routes = [
     component: Home,
   },*/
   {
+    path: '/login',
+    name: 'Getting started',
+    component: () => import('../pages/login.vue'),
+  },
+  {
     path: '/gluten-free',
     name: 'GlutenFree',
     component: () => import('../pages/GlutenFree.vue'),

@@ -155,7 +155,7 @@ export default {
               </ul>
             </v-card-text>
           </v-card>
-          <v-btn color="brown darken-4" dark large>Get started</v-btn>
+          <v-btn color="brown darken-4" dark large @click="logForm">Get started</v-btn>
         </v-col>
         <v-col cols="6">
           <div style="text-align:right">
@@ -194,6 +194,10 @@ export default {
       // Ad esempio, puoi fare un redirect a un'altra pagina
       // this.$router.push('/home');
     },
+
+    logForm() {
+      this.$router.push('/login');
+    }
   },
 };
 </script>
