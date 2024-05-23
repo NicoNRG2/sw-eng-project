@@ -23,6 +23,31 @@ const getProductById = async (req, res) => {
   }
 };
 
+// Function to get products based on type
+const getProductsByType = async (req, res) => {
+  try {
+    const { type } = req.params;
+    let query = {};
+
+    if (['Bread', 'Wholemeal Flour', 'Fresh Pasta', 'Sweets', 'Savory'].includes(type)) {
+      query.category = type;
+    } else {
+      // Check for gluten-free or vegan boolean filters
+      if (type.toLowerCase() === 'gluten_free') {
+        query.gluten_free = true;
+      }
+      if (type.toLowerCase() === 'vegan') {
+        query.vegan = true;
+      }
+    }
+
+    const products = await Product.find(query);
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching products', error });
+  }
+};
+
 // Function to create a new product
 const createProduct = async (req, res) => {
   const product = new Product({
@@ -102,6 +127,7 @@ const deleteProduct = async (req, res) => {
 module.exports = {
   getAllProducts,
   getProductById,
+  getProductsByType,
   createProduct,
   updateProduct,
   deleteProduct
