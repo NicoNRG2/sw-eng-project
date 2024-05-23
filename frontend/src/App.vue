@@ -1,22 +1,9 @@
 <template>
-  <v-app>
-    <Navbar />
-    <router-view />
-  </v-app>
+  <router-view></router-view>
 </template>
 
 <script>
-import Navbar from './components/Navbar.vue';
-
-export default {
-  name: 'App',
-  components: {
-    Navbar,
-  },
-};
+  export default {
+    name: 'App',
+  };
 </script>
-
-<style>
-@import '@mdi/font/css/materialdesignicons.css';
-@import 'vuetify/styles';
-</style>

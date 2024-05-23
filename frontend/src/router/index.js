@@ -1,15 +1,33 @@
+import { createRouter, createWebHistory } from 'vue-router';
+import MainLayout from '../components/Layout.vue';
+import HomePage from '../components/HomePage.vue';
+import Login from '../components/Login.vue'; 
 
-/**
- * router/index.ts
- *
- * Automatic routes for `./src/pages/*.vue`
- */
+const routes = [
+  {
+    path: '/',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        name: 'HomePage',
+        component: HomePage
+      },
+      {
+        path: 'login',
+        name: 'Login',
+        component: Login
+      }/*,
+      {
+        path: 'products',
+        name: 'ProductList',
+        component: ProductList
+      } */
+    ]
+  }
+];
 
-// Composables
-import { createRouter, createWebHistory } from 'vue-router/auto'
-
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-})
-
-export default router
+export default createRouter({
+  history: createWebHistory(),
+  routes,
+});
