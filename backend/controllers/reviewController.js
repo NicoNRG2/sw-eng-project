@@ -50,7 +50,7 @@ const getProductRatingAverage = async (req, res) => {
     }
 
     const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
-    res.json({ productId, averageRating });
+    res.json({ productId, averageRating, totalReviews: reviews.length });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
