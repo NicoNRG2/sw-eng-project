@@ -1,5 +1,5 @@
 <template>
-    <v-app>
+    <v-app class="background-image">
       <v-container>
         <v-row align="center" justify="center">
           <v-col cols="12" md="4">
@@ -10,10 +10,10 @@
               <v-card-text>
                 <v-form>
                   <v-text-field
-                    label="Email"
-                    name="email"
+                    label="Username"
+                    name="username"
                     prepend-icon="mdi-account"
-                    type="email"
+                    type="text"
                   ></v-text-field>
                   <v-text-field
                     label="Password"
@@ -44,6 +44,24 @@
   .v-card {
     max-width: 400px;
     margin: 100px auto;
+  }
+  
+  .background-image {
+    background-image: url('@/assets/castagnole.png'); 
+    background-size: cover;
+    background-position: center;
+    opacity: 0.9; 
+    position: relative;
+  }
+  
+  .background-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.5); 
   }
   </style>
   
