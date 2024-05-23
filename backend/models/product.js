@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  images: [String],
+  images: String,
   vegan: {
     type: Boolean,
     default: false
@@ -32,3 +32,4 @@ const productSchema = new mongoose.Schema({
 const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;
+

@@ -1,10 +1,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dbConnectionString = require('./dbConfig');
+
 const productRoutes = require('./routes/productRoutes');
+const reservationRoutes = require('./routes/reservationRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const shoppingCartRoutes = require('./routes/shoppingCartRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.use(express.json()); // Middleware to parse JSON
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -23,8 +30,12 @@ mongoose.connect(dbConnectionString)
     process.exit(1);
   });
 
-// Use routes for products
+// Use routes for different classes
 app.use('/api/products', productRoutes);
+app.use('/api/reservations', reservationRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/shopping-cart', shoppingCartRoutes);
+app.use('/api/users', userRoutes);
 
 // Start the server
 app.listen(PORT, () => {
