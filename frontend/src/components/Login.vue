@@ -3,7 +3,7 @@
       <v-container>
         <v-row align="center" justify="center">
           <v-col cols="12" md="4">
-            <v-card class="elevation-10">
+            <v-card class="elevation-10 login-card">
               <v-card-title>
                 <span class="headline">Login</span>
               </v-card-title>
@@ -41,7 +41,7 @@
   </script>
   
   <style scoped>
-  .v-card {
+  .login-card {
     max-width: 400px;
     margin: 100px auto;
   }
