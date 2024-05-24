@@ -1,3 +1,5 @@
+const fs = require('fs');
+const https = require('https');
 const express = require('express');
 const mongoose = require('mongoose');
 const dbConnectionString = require('./dbConfig');
@@ -13,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json()); // Middleware to parse JSON
 
+// Enable CORS for all origins
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -37,7 +40,12 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/shopping-cart', shoppingCartRoutes);
 app.use('/api/users', userRoutes);
 
-// Start the server
-app.listen(PORT, () => {
+// HTTPS server setup
+const options = {
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.crt')
+};
+
+https.createServer(options, app).listen(PORT, () => {
   console.log(`Backend server listening on port ${PORT}`);
 });

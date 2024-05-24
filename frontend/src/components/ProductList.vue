@@ -146,7 +146,7 @@ export default {
     async fetchProducts() {
       const filter = this.$route.query.type || '';
       try {
-        const response = await axios.get(`http://localhost:3000/api/products/type/${filter}`);
+        const response = await axios.get(`https://localhost:3000/api/products/type/${filter}`);
         this.products = response.data;
         for (let product of this.products){
           await this.fetchProductRating(product);
@@ -158,7 +158,7 @@ export default {
     async fetchProductRating(product) {
       try {
         const _id = product._id
-        const response = await axios.get(`http://localhost:3000/api/reviews/average/${_id}`);
+        const response = await axios.get(`https://localhost:3000/api/reviews/average/${_id}`);
         product.ratingData = response.data;
       } catch (error) {
         console.error('Error fetching rating for product ${_id}:', error);
