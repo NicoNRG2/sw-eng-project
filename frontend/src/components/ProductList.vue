@@ -7,9 +7,8 @@
       <v-card
         :disabled="loading"
         :loading="loading"
-        class="mx-auto my-12 rounded-lg v-card"
+        class="mx-auto my-12 rounded-lg productlist-card"
         max-width="350"
-        max-height="600"
       >
         <template v-slot:loader="{ isActive }">
           <v-progress-linear
@@ -46,11 +45,10 @@
           </v-card-subtitle>
         </v-card-item>
       
-        <!-- TODO: dinamically adjust ratings-->
         <v-card-text>
-          <v-row align="center" class="mx-0">
-            <v-col class="d-flex justify-center align-center">
-              <div v-if="product.ratingData">
+          <v-col class="mx-0">
+            <v-row class="d-flex justify-center" align="center">
+              <div v-if="product.ratingData" class="d-flex align-center">
                 <v-rating
                   :model-value="product.ratingData.averageRating"
                   color="amber"
@@ -64,14 +62,14 @@
               <div v-else>
                 <div class="text-grey ms-4">Be the first one to leave a rating for this product!</div>
               </div>
-            </v-col>
-          </v-row>
-        
-          <div class="my-4 text-subtitle-1"></div>
-        
-          <div align="center" style="max-height: 20px; overflow-y: auto">
-            {{ product.ingredients.join(', ') }}
-          </div>
+            </v-row>
+          
+            <div class="my-4 text-subtitle-1"></div>
+          
+            <div align="center" style="max-height: 20px; overflow-y: auto">
+              {{ product.ingredients.join(', ') }}
+            </div>
+          </v-col>
         </v-card-text>
       
         <v-divider class="mx-4 mb-1"></v-divider>
@@ -81,7 +79,7 @@
             <template v-slot:activator="{ props }">
               <v-btn
                 class="rounded-xl"
-                color="deep-purple-lighten-2"
+                color="brown lighten-1"
                 text="Add to cart"
                 block
                 border
@@ -101,7 +99,7 @@
             <v-col>
               <v-btn
                 class="rounded-xl"
-                color="deep-purple-lighten-2"
+                color="brown lighten-1"
                 text="Leave a review"
                 block
                 border
@@ -170,7 +168,7 @@ export default {
 </script>
 
 <style scoped>
-  .v-card {
+  .productlist-card {
     margin-bottom: 20px;
   }
   .text-center {

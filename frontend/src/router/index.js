@@ -3,6 +3,7 @@ import MainLayout from '../components/Layout.vue';
 import HomePage from '../components/HomePage.vue';
 import Login from '../components/Login.vue'; 
 import ProductList from '../components/ProductList.vue'
+import Registration from '@/components/Registration.vue';
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
         path: 'login',
         name: 'Login',
         component: Login
+      },
+      {
+        path: 'register',
+        name: 'Register',
+        component: Registration
       },
       {
         path: 'products',

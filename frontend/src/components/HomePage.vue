@@ -2,7 +2,7 @@
   <v-app>
     <v-row>
       <v-col cols="6">
-        <v-card class="elevation-10" color="brown darken-4" dark>
+        <v-card class="elevation-10 homepage-card" color="brown darken-4" dark>
           <v-card-title class="white--text">
             What you can find in Bakery4You:
           </v-card-title>
@@ -66,7 +66,7 @@ export default {
   list-style-type: disc;
 }
 
-.v-card {
+.homepage-card {
   width: 100%;
   height: 40%;
   max-width: 500px;
