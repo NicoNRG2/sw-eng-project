@@ -32,8 +32,7 @@ const createUser = async (req, res) => {
     surname: req.body.surname,
     email: req.body.email,
     username: req.body.username,
-    password: req.body.password,
-    role: req.body.role
+    password: req.body.password
   });
 
   try {
@@ -66,9 +65,6 @@ const updateUser = async (req, res) => {
     }
     if (req.body.password != null) {
       user.password = req.body.password;
-    }
-    if (req.body.role != null) {
-      user.role = req.body.role;
     }
 
     const updatedUser = await user.save();

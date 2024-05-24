@@ -11,6 +11,7 @@ const getAllReservations = async (req, res) => {
   }
 };
 
+
 // Function to get a single reservation by ID
 const getReservationById = async (req, res) => {
   try {

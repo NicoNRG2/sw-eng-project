@@ -25,12 +25,22 @@
                   v-model="password"
                   required
                 ></v-text-field>
+
+                  <v-card-text>
+                    Are you not registered yet?
+                  </v-card-text>
+                  <v-btn color="brown darken-4" dark @click="go2register">Sign up</v-btn>
+                
               </v-form>
+ 
+
+
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="brown darken-4" dark @click="login">Login</v-btn>
             </v-card-actions>
+
             <v-snackbar v-model="snackbar" :color="snackbarColor" top>
               {{ snackbarText }}
             </v-snackbar>
@@ -56,6 +66,10 @@ export default {
     };
   },
   methods: {
+    go2register(){
+      this.$router.push('/register');
+    },
+
     async login() {
       try {
         const response = await axios.post('https://localhost:3000/api/users/login', {

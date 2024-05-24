@@ -13,7 +13,7 @@
             :key="link.text" 
             @click="go2Home(link.route)"
           > {{link.text}} </v-btn>
-          
+
           <!--product list buttons-->
           <v-btn 
             text 
@@ -36,6 +36,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'AppLayout',
   data() {
@@ -45,7 +46,7 @@ export default {
   },
 
   methods: {
-
+    
     // product list handler
     filterProducts(filter) {
       this.$router.push({ 
