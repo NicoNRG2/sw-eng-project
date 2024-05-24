@@ -51,8 +51,8 @@ export default defineConfig({
   },
   server: {
     https: {
-      key: fs.readFileSync('vue-server.key'),
-      cert: fs.readFileSync('vue-server.crt'),
+      key: fs.readFileSync('../server.key'),
+      cert: fs.readFileSync('../server.crt'),
     },
     port: 8081,
   },
