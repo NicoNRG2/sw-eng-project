@@ -95,18 +95,59 @@
         </v-col>
       
         <v-card-actions>
-          <v-row>
-            <v-col>
+          <v-dialog v-model="dialog" max-width="600">
+            <template v-slot:activator="{ props: activatorProps }">
               <v-btn
                 class="rounded-xl"
                 color="brown lighten-1"
                 text="Leave a review"
                 block
                 border
-                @click="reserve"
+                v-bind="activatorProps"
               ></v-btn>
-            </v-col>
-          </v-row>
+            </template>
+
+                  <v-card prepend-icon="mdi-message-draw" title="Leave a review!">
+                    <v-card-text>
+                      <v-col>
+                        <v-rating
+                        v-model="review.rating"
+                        color="amber"
+                        density="compact"
+                        size="x-large"
+                        half-increments
+                        hover
+                        >
+                        </v-rating>
+                        <v-text-field
+                            v-model="review.text"
+                            hint="Write your review, and be nice :D"
+                            label="Review"
+                            clearable
+                        ></v-text-field>
+                      </v-col>
+                <small class="text-caption text-medium-emphasis"
+                  >all fields are required</small
+                >
+              </v-card-text>
+            
+              <v-divider></v-divider>
+            
+              <v-card-actions>
+                <v-spacer></v-spacer>
+              
+                <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
+              
+                <v-btn
+                  :disabled="!isFormValid"
+                  color="brown lighten-1"
+                  text="Save"
+                  variant="tonal"
+                  @click="saveReview(product._id)"
+                ></v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>  
         </v-card-actions>
       </v-card>
     </v-col>  
@@ -121,8 +162,18 @@ export default {
   name: 'ProductList',
   data() {
     return {
+      dialog: false,
       products: [],
+      review: {
+        rating: null,
+        text: ''
+      }
     };
+  },
+  computed: {
+    isFormValid() {
+      return this.review.rating !== null && this.review.text.trim() !== '';
+    }
   },
   watch: {
     '$route.query.type': 'fetchProducts',
@@ -131,11 +182,6 @@ export default {
     this.fetchProducts();
   },
   methods: {
-    reserve() {
-        this.loading = true
-
-        setTimeout(() => (this.loading = false), 2000)
-      },
     getImage(prd) {
         /* prd.images
         ? prd.images
@@ -161,6 +207,28 @@ export default {
       } catch (error) {
         console.error('Error fetching rating for product ${_id}:', error);
         product.ratingData = null;
+      }
+    },
+    async saveReview(productId) {
+      this.dialog = false
+      if (this.isFormValid) {
+        try {
+          console.log(this.review.comment);
+          const response = await axios.post('http://localhost:3000/api/reviews', {
+            rating: this.review.rating,
+            comment: this.review.text,
+            product: productId,
+            user: '664f3caa522b24f7ab88897f'
+          }, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+
+          console.log('Review saved succesfully: ', response.data);
+        } catch (error) {
+          console.error('Error saving review: ', error);
+        }
       }
     }
   },
