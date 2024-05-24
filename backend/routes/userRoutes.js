@@ -17,4 +17,12 @@ router.put('/:id', userController.updateUser);
 // Route to delete a user
 router.delete('/:id', userController.deleteUser);
 
+// Route to authenticate a user
+router.post('/login', userController.loginUser);
+
+// Example of a protected route
+router.get('/protected', userController.protectRoute, (req, res) => {
+  res.status(200).json({ message: 'This is a protected route' });
+});
+
 module.exports = router;
