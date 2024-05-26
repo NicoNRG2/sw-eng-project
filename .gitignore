@@ -1,0 +1,3 @@
+# Ignore private key and certificate files
+server.key
+server.crt
