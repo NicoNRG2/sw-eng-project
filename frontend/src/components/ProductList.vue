@@ -214,11 +214,11 @@ export default {
       if (this.isFormValid) {
         try {
           console.log(this.review.comment);
-          const response = await axios.post('http://localhost:3000/api/reviews', {
+          const response = await axios.post('https://localhost:3000/api/reviews', {
             rating: this.review.rating,
             comment: this.review.text,
             product: productId,
-            user: '664f3caa522b24f7ab88897f'
+            user: '665083ca637b64fa4f15573c'
           }, {
             headers: {
               'Content-Type': 'application/json'
