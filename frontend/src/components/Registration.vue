@@ -56,7 +56,7 @@
     </v-container>
     <v-snackbar v-model="snackbar" :color="snackbarColor" top>
       {{ snackbarText }}
-      <v-btn v-if="showLoginLink" text color="white" click="navigateToLogin">Login</v-btn>
+      <v-btn v-if="showLoginLink" text color="white" @click="navigateToLogin">Login</v-btn>
     </v-snackbar>
   </v-app>
 </template>
