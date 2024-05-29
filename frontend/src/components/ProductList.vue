@@ -21,7 +21,25 @@
         <div class="image-container">
           <v-img height="200" width="200" :src="getImage(product)" cover></v-img>
         </div>
-      
+
+        <div v-if="isAdmin">
+          <v-divider class="mx-4 mb-1"></v-divider>
+          <v-card-text>
+            <v-file-input
+              label="Upload Image"
+              @change="uploadImage(product._id, $event)"
+              accept="image/*"
+            ></v-file-input>
+            <v-text-field
+              label="Modify Quantity"
+              v-model="product.availability"
+              type="number"
+              @change="updateQuantity(product._id, product.availability)"
+            ></v-text-field>
+          </v-card-text>
+        </div>
+
+
         <v-card-item>
           <v-card-title class="text-center">{{product.name}}</v-card-title>
         
@@ -182,11 +200,35 @@ export default {
     this.fetchProducts();
   },
   methods: {
-    getImage(prd) {
-        /* prd.images
-        ? prd.images
-        :  */return 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp'
+    isAdmin(){
+      return this.user.name == 'admin';
     },
+
+    async uploadImage(productId, event) {
+      const file = event.target.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+          const response = await axios.post(`https://localhost:3000/api/products/${productId}/upload-image`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          console.log('Image uploaded successfully: ', response.data);
+        } catch (error) {
+          console.error('Error uploading image: ', error);
+        }
+      }
+    },
+
+    getImage(product) {
+      return product.images && product.images.length > 0
+        ? `https://localhost:3000/${product.images[product.images.length - 1]}`
+        : 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp';
+    },
+
     async fetchProducts() {
       const filter = this.$route.query.type || '';
       try {
