@@ -17,9 +17,16 @@
         <v-btn text v-for="filter in filters" :key="filter" @click="filterProducts(filter)">
           {{ filter }}
         </v-btn>
+
+        <v-btn v-if="username" text @click="shoppingCart()">Shopping Cart</v-btn>
+
       </v-app-bar>
 
-      <router-view></router-view>
+      <v-main>
+        <slot></slot>
+        <router-view></router-view>
+      </v-main>
+
       <v-footer app color="brown lighten-1" dark>
         <v-col class="text-center">
           Come pick up your order at [Street Name]
@@ -55,6 +62,10 @@ export default {
         name: 'ProductList',
         query: { type: filter }
       });
+    },
+
+    shoppingCart() {
+      this.$router.push('/shoppingcart');
     },
 
     // go to home handler
