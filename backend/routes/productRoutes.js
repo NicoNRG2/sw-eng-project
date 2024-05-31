@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const fs = require('fs');
+
 const productController = require('../controllers/productController');
 
 // Route to get all products
@@ -21,7 +23,7 @@ router.put('/:id', productController.updateProduct);
 // Route to delete a product
 router.delete('/:id', productController.deleteProduct);
 
-const storage = multer.diskStorage({
+/*const storage = multer.diskStorage({
     destination: function (req, file, cb){
         cb(null, 'uploads/');
     },
@@ -29,19 +31,34 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb){
         cb(null, Date.now() + '-' + file.originalname);
     }
-});
+});  */
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      const uploadDir = 'uploads';
+      
+      //'uploads'
+      if (!fs.existsSync(uploadDir)){
+        fs.mkdirSync(uploadDir);
+      }
+      
+      cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + '-' + file.originalname);
+    }
+  });
 
 const upload = multer({
     storage: storage
 });
-
 /*
-router.post('/:productId/upload-image', upload.single('image'), async (req, res) => {
+router.post('/:_id/upload-image', upload.single('image'), async (req, res) => {
     const productId = req.params._id;
     const imagePath = req.file.path;
 
     try{
-        const product = await Product.findById(req.params.id);
+        const product = await Product.findById(productId);
         if(!product){
             return res.status(404).send('Product not found');
         }
