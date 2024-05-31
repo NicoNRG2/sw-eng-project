@@ -33,11 +33,31 @@
                 @change="uploadImage($event, product)"
                 accept="image/*"
               ></v-file-input>
+
+              <v-text-field
+                label="Modify Name"
+                v-model="product.name"
+                
+                @change="updateName(product._id, product.name)"
+              ></v-text-field>
+              <v-text-field
+                label="Modify Price"
+                v-model="product.price"
+                type="number"
+                @change="updatePrice(product._id, product.price)"
+              ></v-text-field>
+
               <v-text-field
                 label="Modify Quantity"
                 v-model="product.availability"
                 type="number"
                 @change="updateQuantity(product._id, product.availability)"
+              ></v-text-field>
+              <v-text-field
+                label="Modify Ingredients"
+                v-model="product.ingredients"
+                
+                @change="updateIngredients(product._id, product.ingredients)"
               ></v-text-field>
             </v-card-text>
           </div>
@@ -279,6 +299,86 @@ export default {
       }
     }
   },
+  async updateQuantity(productId, newQuantity) {
+    try {
+      const response = await axios.put(`https://localhost:3000/api/products/${productId}/quantity`, {
+        availability: newQuantity
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Quantity updated successfully: ', response.data);
+      const product = this.products.find(p => p._id === productId);
+      if (product) {
+        product.availability = newQuantity;
+      }
+    } catch (error) {
+      console.error('Error updating quantity: ', error);
+    }
+  },
+  async updateIngredients(productId, ingredients) {
+      console.log('updateIngredients called with:', productId, ingredients); // Debug
+      const ingredientsArray = ingredients.split(',').map(ingredient => ingredient.trim());
+      try {
+        const response = await axios.put(`https://localhost:3000/api/products/${productId}/ingredients`, {
+          ingredients: ingredientsArray
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log('Ingredients updated successfully: ', response.data);
+        const product = this.products.find(p => p._id === productId);
+        if (product) {
+          product.ingredients = ingredientsArray;
+        }
+      } catch (error) {
+        console.error('Error updating ingredients: ', error);
+      }
+    },
+    async updatePrice(productId, newPrice) {
+      console.log('updatePrice called with:', productId, newPrice); // Debug
+      try {
+        const response = await axios.put(`https://localhost:3000/api/products/${productId}/price`, {
+          price: newPrice
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log('Price updated successfully: ', response.data);
+        const product = this.products.find(p => p._id === productId);
+        if (product) {
+          product.price = newPrice;
+        }
+      } catch (error) {
+        console.error('Error updating price: ', error);
+      }
+    },
+    async updateName(productId, newName) {
+      console.log('updateName called with:', productId, newName); // Debug
+      try {
+        const response = await axios.put(`https://localhost:3000/api/products/${productId}/name`, {
+          name: newName
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log('Name updated successfully: ', response.data);
+        const product = this.products.find(p => p._id === productId);
+        if (product) {
+          product.name = newName;
+        }
+      } catch (error) {
+        console.error('Error updating name: ', error);
+      }
+  }
 };
 </script>
 
