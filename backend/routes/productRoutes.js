@@ -35,6 +35,7 @@ const upload = multer({
     storage: storage
 });
 
+/*
 router.post('/:productId/upload-image', upload.single('image'), async (req, res) => {
     const productId = req.params._id;
     const imagePath = req.file.path;
@@ -57,6 +58,6 @@ router.post('/:productId/upload-image', upload.single('image'), async (req, res)
             message: 'Error uploading image', error
         });
     }
-});
+});*/
 
 module.exports = router;
