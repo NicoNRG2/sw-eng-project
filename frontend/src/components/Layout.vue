@@ -3,13 +3,17 @@
     <v-container>
       <v-app-bar app color="brown lighten-1" dark>
         <!--Bakery 4 you title with click handler-->
-        <v-toolbar-title @click="go2Home" class="cursor-pointer">Bakery4You</v-toolbar-title>
+        <v-toolbar-title @click="go2Home" class="cursor-pointer" style="display: flex; align-items: baseline;">
+          <img src="@/assets/home.svg" alt="Home Icon" style="width: 18px; height: 18px; margin-right: 8px; filter: invert(1);">
+          <span>Bakery4You</span>
+        </v-toolbar-title>
+
         <v-spacer></v-spacer>
 
         <!-- Display username if logged in -->
         <v-btn v-if="username" text>Welcome, {{ username }}</v-btn>
 
-        <v-btn text v-for="link in links" :key="link.text" @click="go2Home(link.route)">
+        <v-btn text v-for="link in filters" :key="link.text" @click="go2Home(link.route)">
           {{ link.text }}
         </v-btn>
 
@@ -17,9 +21,16 @@
         <v-btn text v-for="filter in filters" :key="filter" @click="filterProducts(filter)">
           {{ filter }}
         </v-btn>
+
+        <v-btn v-if="username" text @click="shoppingCart()">Shopping Cart</v-btn>
+
       </v-app-bar>
 
-      <router-view></router-view>
+      <v-main>
+        <slot></slot>
+        <router-view></router-view>
+      </v-main>
+
       <v-footer app color="brown lighten-1" dark>
         <v-col class="text-center">
           Come pick up your order at [Street Name]
@@ -55,6 +66,10 @@ export default {
         name: 'ProductList',
         query: { type: filter }
       });
+    },
+
+    shoppingCart() {
+      this.$router.push('/shoppingcart');
     },
 
     // go to home handler
