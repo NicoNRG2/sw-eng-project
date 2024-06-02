@@ -6,6 +6,7 @@
 
 import { createApp } from 'vue';
 import { createVuetify } from 'vuetify/lib/framework';
+import { VNumberInput } from 'vuetify/labs/VNumberInput'; // Number Input
 
 // CSS Loader
 import 'vuetify/styles'; 
@@ -14,5 +15,8 @@ import 'vuetify/styles';
 export default createVuetify({
   theme: {
     defaultTheme: 'dark',
+  },
+  components: {
+    VNumberInput,
   },
 })

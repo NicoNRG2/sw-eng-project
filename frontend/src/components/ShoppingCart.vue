@@ -21,35 +21,42 @@
                       <p class="text-h4 font-weight-black">{{ item.productId.name }}</p>
                     </v-card-title>
                     <v-card-text>
-                      {{item.productId.price}}
+                      € {{item.productId.price}}
                     </v-card-text>
+
+                    <v-dialog transition="dialog-bottom-transition" v-model="dialog" max-width="auto">
+                      <template v-slot:activator="{ props: activatorProps }">
+                        <v-btn 
+                          variant="plain" 
+                          v-bind="activatorProps"
+                          text=" Read the details "
+                        ></v-btn>
+                      </template>
+
+                      <v-card>
+                        <v-card-text>
+                          <v-col>
+
+                          </v-col>
+                        </v-card-text>
+                      </v-card>
+                    </v-dialog>
+
                     <div class="d-flex">
-                      <v-dialog transition="dialog-bottom-transition" v-model="dialog" max-width="auto">
-                        <template v-slot:activator="{ props: activatorProps }">
-                          <v-btn 
-                            variant="plain" 
-                            v-bind="activatorProps"
-                            text=" Read the details "
-                          ></v-btn>
-                        </template>
-
-                        <v-card>
-                          <v-card-text>
-                            <v-col>
-
-                            </v-col>
-                          </v-card-text>
-                        </v-card>
-                      </v-dialog>
+                      <v-number-input
+                        :reverse="false"
+                        controlVariant="split"
+                        label="Quantity"
+                        :hideInput="false"
+                        :inset="false"
+                        variant="outlined"
+                      ></v-number-input>
                       <v-btn variant="text"> Remove </v-btn>
                     </div>
                   </v-col>
-                  
                 </v-row>
 
-                <v-divider
-                  :thickness="3"
-                ></v-divider>
+                <v-divider :thickness="3"></v-divider>
                 <!--<v-card-text>
                   <div>{{ item.name }}</div>
                   <p class="text-h4 font-weight-black">{{ item.name }}</p>
@@ -178,4 +185,3 @@
       margin-bottom: 8px;
     }
   </style>
-  
