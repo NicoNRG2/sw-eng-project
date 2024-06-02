@@ -42,17 +42,30 @@
                       </v-card>
                     </v-dialog>
 
-                    <div class="d-flex">
-                      <v-number-input
-                        :reverse="false"
-                        controlVariant="split"
-                        label="Quantity"
-                        :hideInput="false"
-                        :inset="false"
-                        variant="outlined"
-                      ></v-number-input>
-                      <v-btn variant="text"> Remove </v-btn>
-                    </div>
+                      <v-container>
+                        <v-row class="d-flex align-center">
+                          <v-col cols="auto">
+                            <v-btn icon @click="decrement">
+                              <v-icon>mdi-minus</v-icon>
+                            </v-btn>
+                          </v-col>
+                          <v-col>
+                            <v-text-field
+                              v-model="number"
+                              label="Number Input"
+                              type="number"
+                              class="text-center"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="auto">
+                            <v-btn icon @click="increment">
+                              <v-icon>mdi-plus</v-icon>
+                            </v-btn>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+
+                      <v-btn variant="text" @click="removeItem(item)">Remove</v-btn>
                   </v-col>
                 </v-row>
 
@@ -165,7 +178,16 @@
             } catch (error) {
               console.error('Error fetching cart or product details:', error);
           }
-        }
+        },
+        async removeItem(item) {
+          //console.log('Removing item:', item.productId._id, 'from user:', this.userId);
+          try {
+            await axios.post(`https://localhost:3000/api/shopping-cart/remove`, { userId: this.userId, productId: item.productId._id });
+            this.getShoppingCart(this.userId);
+          } catch (error) {
+            console.error('Error removing item from cart:', error);
+          }
+        },
       },
     }
   </script>
