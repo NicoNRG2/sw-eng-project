@@ -11,18 +11,41 @@
               <v-card class="mx-auto" >
                 <v-row>
                   <v-img
-                    :width="245"
+                    :width="200"
                     aspect-ratio="1/1"
-                    src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
+                    src="https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp"
+                    cover
                   ></v-img>
-                  <v-card-title>
-                    <p class="text-h4 font-weight-black">{{ item.productId.name }}</p>
-                  </v-card-title>
+                  <v-col>
+                    <v-card-title>
+                      <p class="text-h4 font-weight-black">{{ item.productId.name }}</p>
+                    </v-card-title>
+                    <v-card-text>
+                      {{item.productId.price}}
+                    </v-card-text>
+                    <div class="d-flex">
+                      <v-dialog transition="dialog-bottom-transition" v-model="dialog" max-width="auto">
+                        <template v-slot:activator="{ props: activatorProps }">
+                          <v-btn 
+                            variant="plain" 
+                            v-bind="activatorProps"
+                            text=" Read the details "
+                          ></v-btn>
+                        </template>
+
+                        <v-card>
+                          <v-card-text>
+                            <v-col>
+
+                            </v-col>
+                          </v-card-text>
+                        </v-card>
+                      </v-dialog>
+                      <v-btn variant="text"> Remove </v-btn>
+                    </div>
+                  </v-col>
+                  
                 </v-row>
-                
-                <v-card-text>
-                  <p>{{item.productId.price}}</p>
-                </v-card-text>
 
                 <v-divider
                   :thickness="3"
@@ -67,7 +90,7 @@
                 </div>
               </v-card-text>
               <v-card-actions>
-                <v-btn color="primary" block @click="proceedToCheckout"
+                <v-btn color="brown lighten-1" block @click="proceedToCheckout"
                   >Procedi al checkout</v-btn
                 >
               </v-card-actions>
@@ -87,38 +110,7 @@
       data() {
         return {
           shoppingCart: '',
-          cartItems: [
-            {
-              name: 'Prodotto 1',
-              description: 'Descrizione del prodotto 1',
-              price: 10,
-              quantity: 1,
-            },
-            {
-              name: 'Prodotto 2',
-              description: 'Descrizione del prodotto 2',
-              price: 20,
-              quantity: 2,
-            },
-            {
-              name: 'Prodotto 1',
-              description: 'Descrizione del prodotto 1',
-              price: 10,
-              quantity: 1,
-            },
-            {
-              name: 'Prodotto 1',
-              description: 'Descrizione del prodotto 1',
-              price: 10,
-              quantity: 1,
-            },
-            {
-              name: 'Prodotto 1',
-              description: 'Descrizione del prodotto 1',
-              price: 10,
-              quantity: 1,
-            },
-          ],
+          dialog: false
         }
       },
       computed: {
@@ -135,7 +127,6 @@
           const decodedToken = jwtDecode(token);
           this.userId = decodedToken.userId;
           console.log(this.userId);
-          console.log(decodedToken.email);
           if (this.userId) {
             console.log('Sta andando');
             this.getShoppingCart(this.userId);
@@ -176,7 +167,7 @@
     .sticky-sidebar {
       position: -webkit-sticky;
       position: sticky;
-      top: 20px;
+      top: 8%;
     }
     .mx-2 {
       margin-left: 8px;
