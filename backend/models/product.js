@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  images: String,
+  images: { type: [String], default: [] },
   vegan: {
     type: Boolean,
     default: false
