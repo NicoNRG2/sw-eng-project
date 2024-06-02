@@ -1,32 +1,43 @@
 const mongoose = require('mongoose');
-const Product = require('./product');
 
 const shoppingCartSchema = new mongoose.Schema({
-  quantities: {
-    type: Map,
-    of: Number,
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   },
-  products: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: true
+  items: [{
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1
+    }
   }],
-  totalCost: {
+  totalPrice: {
     type: Number,
     default: 0
   }
 });
 
+// Calculate total price before saving
 shoppingCartSchema.pre('save', async function(next) {
-  const cart = this;
-  let totalCost = 0;
-  for (const productId of cart.products) {
-    const product = await Product.findById(productId);
-    totalCost += product.price * cart.quantities.get(productId.toString());
+  try {
+    const cart = this;
+    let total = 0;
+    for (const item of cart.items) {
+      const product = await mongoose.model('Product').findById(item.productId);
+      total += product.price * item.quantity;
+    }
+    cart.totalPrice = total;
+    next();
+  } catch (error) {
+    next(error);
   }
-  cart.totalCost = totalCost;
-  next();
 });
 
 const ShoppingCart = mongoose.model('ShoppingCart', shoppingCartSchema);

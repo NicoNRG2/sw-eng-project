@@ -4,6 +4,7 @@ import HomePage from '../components/HomePage.vue';
 import Login from '../components/Login.vue'; 
 import ProductList from '../components/ProductList.vue'
 import Registration from '@/components/Registration.vue';
+import ShoppingCart from '@/components/ShoppingCart.vue'
 
 const routes = [
   {
@@ -29,6 +30,11 @@ const routes = [
         path: 'products',
         name: 'ProductList',
         component: ProductList
+      },
+      {
+        path: 'shoppingcart',
+        name: 'ShoppingCart',
+        component: ShoppingCart
       }
     ]
   }
