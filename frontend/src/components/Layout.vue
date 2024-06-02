@@ -3,27 +3,43 @@
     <v-container>
       <v-app-bar app color="brown lighten-1" dark>
         <!--Bakery 4 you title with click handler-->
-        <v-toolbar-title @click="go2Home" class="cursor-pointer" style="display: flex; align-items: baseline;">
-          <img src="@/assets/home.svg" alt="Home Icon" style="width: 18px; height: 18px; margin-right: 8px; filter: invert(1);">
+        <v-toolbar-title @click="go2Home" class="cursor-pointer" style="display: flex; align-items: center;">
+          <v-icon left size="24px" class="mr-2">mdi-home</v-icon>
           <span>Bakery4You</span>
         </v-toolbar-title>
 
         <v-spacer></v-spacer>
-
-        <!-- Display username if logged in -->
-        <v-btn v-if="username" text>Welcome, {{ username }}</v-btn>
-
-        <v-btn text v-for="link in filters" :key="link.text" @click="go2Home(link.route)">
-          {{ link.text }}
-        </v-btn>
 
         <!--product list buttons-->
         <v-btn text v-for="filter in filters" :key="filter" @click="filterProducts(filter)">
           {{ filter }}
         </v-btn>
 
-        <v-btn v-if="username" text @click="shoppingCart()">Shopping Cart</v-btn>
+        <v-btn v-if="username" text @click="shoppingCart()"><v-icon left>mdi-cart</v-icon></v-btn>
 
+        <!--profile icon-->
+        <v-menu v-if="username" bottom>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props">
+              <v-icon left class="mr-2">mdi-account</v-icon>
+              {{ username }}
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item @click="goToProfile">
+              <v-list-item-title>Profile</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="logout">
+              <v-list-item-title>Logout</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
+        <v-btn v-else text @click="login">
+          <v-icon left class="mr-2">mdi-login</v-icon>
+          Login
+        </v-btn>
       </v-app-bar>
 
       <v-main>
@@ -75,6 +91,20 @@ export default {
     // go to home handler
     go2Home() {
       this.$router.push('/');
+    },
+
+    goToProfile() {
+      this.$router.push('/profile');
+    },
+
+    login() {
+      this.$router.push('/login');
+    },
+
+    logout() {
+      localStorage.removeItem('token');
+      this.username = '';
+      this.$router.push('/login');
     }
   },
 };

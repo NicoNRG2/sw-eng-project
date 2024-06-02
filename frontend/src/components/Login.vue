@@ -81,8 +81,8 @@ export default {
         this.snackbarText = 'Login successful!';
         this.snackbarColor = 'green';
         this.snackbar = true;
-        // Redirect to another page or perform any other action
-        this.$router.push({ name: 'HomePage' });
+        // Redirect to homepage with reload
+        window.location.href = '/';
       } catch (error) {
         console.error('There was an error logging in:', error);
         this.snackbarText = 'Login failed. Please try again.';
