@@ -7,7 +7,7 @@
             <v-img
               height="200"
               width="200"
-              :src="product.tempImageUrl || getImage(product)"
+              :src="getImage(product)"
               cover
             ></v-img>
           </div>
@@ -24,7 +24,6 @@
               <v-text-field
                 label="Modify Name"
                 v-model="product.name"
-                
                 @change="updateName(product._id, product.name)"
               ></v-text-field>
               <v-text-field
@@ -291,52 +290,31 @@ export default {
           console.error('Error saving review: ', error);
         }
       }
-    }
-  },
-  async updateAvailability(productId, newQuantity) {
-    try {
-      const response = await axios.put(`https://localhost:3000/api/products/${productId}/quantity`, {
-        availability: newQuantity
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      console.log('Quantity updated successfully: ', response.data);
-      const product = this.products.find(p => p._id === productId);
-      if (product) {
-        product.availability = newQuantity;
-      }
-    } catch (error) {
-      console.error('Error updating quantity: ', error);
-    }
-  },
-  async updateIngredients(productId, ingredients) {
-      console.log('updateIngredients called with:', productId, ingredients); // Debug
-      const ingredientsArray = ingredients.split(',').map(ingredient => ingredient.trim());
+    },
+    async updateName(productId, newName) {
+      console.log('updateName called with:', productId, newName); // Debug
       try {
-        const response = await axios.put(`https://localhost:3000/api/products/${productId}/ingredients`, {
-          ingredients: ingredientsArray
+        const response = await axios.put(`https://localhost:3000/api/products/${productId}`, {
+          name: newName
         }, {
           headers: {
             'Content-Type': 'application/json'
           }
         });
 
-        console.log('Ingredients updated successfully: ', response.data);
+        console.log('Name updated successfully: ', response.data);
         const product = this.products.find(p => p._id === productId);
         if (product) {
-          product.ingredients = ingredientsArray;
+          product.name = newName;
         }
       } catch (error) {
-        console.error('Error updating ingredients: ', error);
+        console.error('Error updating name: ', error);
       }
     },
     async updatePrice(productId, newPrice) {
       console.log('updatePrice called with:', productId, newPrice); // Debug
       try {
-        const response = await axios.put(`https://localhost:3000/api/products/${productId}/price`, {
+        const response = await axios.put(`https://localhost:3000/api/products/${productId}`, {
           price: newPrice
         }, {
           headers: {
@@ -353,26 +331,47 @@ export default {
         console.error('Error updating price: ', error);
       }
     },
-    async updateName(productId, newName) {
-      console.log('updateName called with:', productId, newName); // Debug
+    async updateAvailability(productId, newQuantity) {
       try {
-        const response = await axios.put(`https://localhost:3000/api/products/${productId}/name`, {
-          name: newName
+        const response = await axios.put(`https://localhost:3000/api/products/${productId}`, {
+          availability: newQuantity
         }, {
           headers: {
             'Content-Type': 'application/json'
           }
         });
 
-        console.log('Name updated successfully: ', response.data);
+        console.log('Quantity updated successfully: ', response.data);
         const product = this.products.find(p => p._id === productId);
         if (product) {
-          product.name = newName;
+          product.availability = newQuantity;
         }
       } catch (error) {
-        console.error('Error updating name: ', error);
+        console.error('Error updating quantity: ', error);
       }
-  }
+    },
+    async updateIngredients(productId, ingredients) {
+      console.log('updateIngredients called with:', productId, ingredients); // Debug
+      const ingredientsArray = ingredients.split(',').map(ingredient => ingredient.trim());
+      try {
+        const response = await axios.put(`https://localhost:3000/api/products/${productId}`, {
+          ingredients: ingredientsArray
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log('Ingredients updated successfully: ', response.data);
+        const product = this.products.find(p => p._id === productId);
+        if (product) {
+          product.ingredients = ingredientsArray;
+        }
+      } catch (error) {
+        console.error('Error updating ingredients: ', error);
+      }
+    }
+  },
 };
 </script>
 
