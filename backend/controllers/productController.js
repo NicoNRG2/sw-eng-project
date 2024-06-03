@@ -124,11 +124,30 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+// Function to upload an image for a specific product
+const uploadProductImage = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (product == null) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Add the image path to the product image array
+    product.images.push(req.file.filename);
+
+    const updatedProduct = await product.save();
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    res.status(500).json({ message: 'Error uploading image', error });
+  }
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
   getProductsByType,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  uploadProductImage
 };

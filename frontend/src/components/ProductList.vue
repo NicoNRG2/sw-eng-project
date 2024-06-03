@@ -2,20 +2,7 @@
   <v-container>
     <v-row>
       <v-col v-for="product in products" :key="product._id">
-        <v-card
-          :disabled="loading"
-          :loading="loading"
-          class="mx-auto my-12 rounded-lg productlist-card"
-          max-width="350"
-        >
-          <template v-slot:loader="{ isActive }">
-            <v-progress-linear
-              :active="isActive"
-              color="deep-purple"
-              height="4"
-              indeterminate
-            ></v-progress-linear>
-          </template>
+        <v-card class="mx-auto my-12 rounded-lg productlist-card" max-width="350">
           <div class="image-container">
             <v-img
               height="200"
@@ -48,10 +35,10 @@
               ></v-text-field>
 
               <v-text-field
-                label="Modify Quantity"
+                label="Modify Availability"
                 v-model="product.availability"
                 type="number"
-                @change="updateQuantity(product._id, product.availability)"
+                @change="updateAvailability(product._id, product.availability)"
               ></v-text-field>
               <v-text-field
                 label="Modify Ingredients"
@@ -195,6 +182,7 @@
 
 <script>
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 export default {
   name: 'ProductList',
@@ -206,9 +194,8 @@ export default {
         rating: null,
         text: ''
       },
-      user: {
-        name: 'admin' 
-      }
+      username: '',
+      isAdmin: false
     };
   },
   computed: {
@@ -221,19 +208,27 @@ export default {
   },
   created() {
     this.fetchProducts();
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      this.userId = decodedToken.userId;
+      this.username = decodedToken.username;
+      this.checkAdmin();
+    }
   },
   methods: {
-    isAdmin() {
-      return this.user.name == 'admin';
+    checkAdmin() {
+      if (this.username === 'admin') {
+        this.isAdmin = true;
+      } else {
+        this.isAdmin = false;
+      }
     },
     async uploadImage(event, product) {
       const file = event.target.files[0];
       if (file) {
         const formData = new FormData();
         formData.append('image', file);
-
-        // temporary image URL
-        product.tempImageUrl = URL.createObjectURL(file);
 
         try {
           const response = await axios.post(`https://localhost:3000/api/products/${product._id}/upload-image`, formData, {
@@ -242,8 +237,7 @@ export default {
             }
           });
           console.log('Image uploaded successfully: ', response.data);
-
-          product.images.push(response.data.imagePath); 
+          this.fetchProducts();
         } catch (error) {
           console.error('Error uploading image: ', error);
         }
@@ -251,7 +245,7 @@ export default {
     },
     getImage(product) {
       return product.images && product.images.length > 0
-        ? `https://localhost:3000/${product.images[product.images.length - 1]}`
+        ? `https://localhost:3000/uploads/${product.images[0]}`
         : 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp';
     },
     async fetchProducts() {
@@ -299,7 +293,7 @@ export default {
       }
     }
   },
-  async updateQuantity(productId, newQuantity) {
+  async updateAvailability(productId, newQuantity) {
     try {
       const response = await axios.put(`https://localhost:3000/api/products/${productId}/quantity`, {
         availability: newQuantity

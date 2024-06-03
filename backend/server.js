@@ -40,6 +40,9 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/shopping-cart', shoppingCartRoutes);
 app.use('/api/users', userRoutes);
 
+// Serve static files from the 'uploads' folder
+app.use('/uploads', express.static('uploads'));
+
 // HTTPS server setup
 const options = {
   key: fs.readFileSync('../server.key'),

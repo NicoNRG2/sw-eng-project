@@ -23,16 +23,7 @@ router.put('/:id', productController.updateProduct);
 // Route to delete a product
 router.delete('/:id', productController.deleteProduct);
 
-/*const storage = multer.diskStorage({
-    destination: function (req, file, cb){
-        cb(null, 'uploads/');
-    },
-    
-    filename: function (req, file, cb){
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});  */
-
+// Multer configuration
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       const uploadDir = 'uploads';
@@ -52,29 +43,8 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage: storage
 });
-/*
-router.post('/:_id/upload-image', upload.single('image'), async (req, res) => {
-    const productId = req.params._id;
-    const imagePath = req.file.path;
 
-    try{
-        const product = await Product.findById(productId);
-        if(!product){
-            return res.status(404).send('Product not found');
-        }
-
-        product.images.push(imagePath);
-        await product.save();
-
-        res.status(200).send({
-            message: 'Image uploaded successfully', product
-        });
-    
-    } catch(error){
-        res.status(500).send({
-            message: 'Error uploading image', error
-        });
-    }
-});*/
+// Route for uploading a specific product image
+router.post('/:id/upload-image', upload.single('image'), productController.uploadProductImage);
 
 module.exports = router;
