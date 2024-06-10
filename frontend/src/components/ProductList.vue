@@ -169,7 +169,7 @@
                 ></v-btn>
               </template>
               <v-list class="rounded-xl" :style="{ height: '200px', overflow: 'auto' }">
-                <v-list-item v-for="n in product.availability" :key="n" link>
+                <v-list-item v-for="n in product.availability" :key="n" link @click="addToCart(product._id, n)">
                   <v-list-item-title v-text="n"></v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -281,6 +281,26 @@ export default {
     }
   },
   methods: {
+    async addToCart(productId, quantity) {
+      try {
+        const response = await fetch('https://localhost:3000/api/shopping-cart/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId: this.userId, productId, quantity })
+        });
+        if (response.ok) {
+          console.log('Product added to cart');
+          // update the UI to reflect the change?
+        } else {
+          const error = await response.json();
+          console.error('Failed to add product to cart:', error.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    },
     async addProduct() {
       try {
         const response = await axios.post('https://localhost:3000/api/products', this.newProduct);
