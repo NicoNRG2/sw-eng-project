@@ -3,6 +3,16 @@
     <v-row>
       <v-col v-for="product in products" :key="product._id">
         <v-card class="mx-auto my-12 rounded-lg productlist-card" max-width="350">
+          <div v-if="isAdmin" class="admin-controls"> 
+            <v-btn 
+              class="red--text text--lighten-1 delete-button" 
+              @click="deleteProduct(product._id)" 
+              icon 
+            > 
+              <v-icon color="red">mdi-close</v-icon> 
+            </v-btn> 
+          </div>
+          
           <div class="image-container">
             <v-img
               height="200"
@@ -370,7 +380,17 @@ export default {
       } catch (error) {
         console.error('Error updating ingredients: ', error);
       }
+    },
+    async deleteProduct(productId) { 
+      try { 
+        const response = await axios.delete(`https://localhost:3000/api/products/${productId}`); 
+        console.log('Product deleted successfully: ', response.data); 
+        this.fetchProducts(); // Refresh the product list 
+      } catch (error) { 
+        console.error('Error deleting product: ', error); 
+      } 
     }
+
   },
 };
 </script>

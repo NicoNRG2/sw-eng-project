@@ -109,19 +109,25 @@ const updateProduct = async (req, res) => {
   }
 };
 
-// Function to delete a product
-const deleteProduct = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (product == null) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    await product.remove();
-    res.json({ message: 'Product deleted' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+// Function to delete a product 
+const deleteProduct = async (req, res) => { 
+  try { 
+    const productId = req.params.id; 
+    console.log(`Attempting to delete product with ID: ${productId}`); 
+     
+    const product = await Product.findById(productId); 
+    if (!product) { 
+      console.log(`Product with ID: ${productId} not found`); 
+      return res.status(404).json({ message: 'Product not found' }); 
+    } 
+ 
+    await Product.deleteOne({ _id: productId }); 
+    console.log(`Product with ID: ${productId} deleted successfully`); 
+    res.json({ message: 'Product deleted successfully' }); 
+  } catch (error) { 
+    console.error('Error deleting product:', error); 
+    res.status(500).json({ message: error.message }); 
+  } 
 };
 
 // Function to upload an image for a specific product
