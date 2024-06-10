@@ -1,5 +1,50 @@
 <template>
   <v-container>
+    <div v-if="isAdmin" class="text-center">
+      <v-btn color="green" @click="showAddProductDialog = true">Add New Product</v-btn>
+
+      <v-dialog v-model="showAddProductDialog" max-width="600px">
+        <v-card>
+          <v-card-title>
+            <span class="headline">Add New Product</span>
+          </v-card-title>
+
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12" sm="6">
+                  <v-text-field label="Name" v-model="newProduct.name" required></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field label="Category" v-model="newProduct.category" required></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <v-text-field label="Ingredients" v-model="newProduct.ingredients" hint="Comma separated" required></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field label="Price" v-model="newProduct.price" type="number" required></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field label="Availability" v-model="newProduct.availability" type="number"></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <v-switch label="Vegan" v-model="newProduct.vegan"></v-switch>
+                </v-col>
+                <v-col cols="12">
+                  <v-switch label="Gluten Free" v-model="newProduct.gluten_free"></v-switch>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="showAddProductDialog = false">Cancel</v-btn>
+            <v-btn color="blue darken-1" text @click="addProduct">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </div>
     <v-row>
       <v-col v-for="product in products" :key="product._id">
         <v-card class="mx-auto my-12 rounded-lg productlist-card" max-width="350">
@@ -204,7 +249,17 @@ export default {
         text: ''
       },
       username: '',
-      isAdmin: false
+      isAdmin: false,
+      showAddProductDialog: false,
+      newProduct: {
+        name: '',
+        category: '',
+        ingredients: '',
+        price: 0,
+        availability: 0,
+        vegan: false,
+        gluten_free: false,
+      },
     };
   },
   computed: {
@@ -226,6 +281,27 @@ export default {
     }
   },
   methods: {
+    async addProduct() {
+      try {
+        const response = await axios.post('https://localhost:3000/api/products', this.newProduct);
+        this.showAddProductDialog = false;
+        this.resetForm();
+        this.fetchProducts();
+      } catch (error) {
+        console.error('There was an error adding the product:', error);
+      }
+    },
+    resetForm() {
+      this.newProduct = {
+        name: '',
+        category: '',
+        ingredients: '',
+        price: 0,
+        availability: 0,
+        vegan: false,
+        gluten_free: false,
+      };
+    },
     checkAdmin() {
       if (this.username === 'admin') {
         this.isAdmin = true;
@@ -398,6 +474,7 @@ export default {
 <style scoped>
 .productlist-card {
   margin-bottom: 20px;
+  max-width: 350px;
 }
 .text-center {
   text-align: center;
