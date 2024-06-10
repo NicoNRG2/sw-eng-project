@@ -42,30 +42,15 @@
                       </v-card>
                     </v-dialog>
 
-                      <v-container>
-                        <v-row class="d-flex align-center">
-                          <v-col cols="auto">
-                            <v-btn icon @click="decrement">
-                              <v-icon>mdi-minus</v-icon>
-                            </v-btn>
-                          </v-col>
-                          <v-col>
-                            <v-text-field
-                              v-model="number"
-                              label="Number Input"
-                              type="number"
-                              class="text-center"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col cols="auto">
-                            <v-btn icon @click="increment">
-                              <v-icon>mdi-plus</v-icon>
-                            </v-btn>
-                          </v-col>
-                        </v-row>
-                      </v-container>
-
-                      <v-btn variant="text" @click="removeItem(item)">Remove</v-btn>
+                    <v-text-field
+                      v-model="item.quantity"
+                      label="Quantity"
+                      type="number"
+                      @change="updateQuantity(item.productId._id, item.quantity)"
+                      outlined
+                    ></v-text-field>
+                    
+                    <v-btn variant="text" @click="removeItem(item)">Remove</v-btn>
                   </v-col>
                 </v-row>
 
@@ -156,13 +141,25 @@
         }
       },
       methods: {
-        increaseQuantity(item) {
-          item.quantity++
-        },
-        decreaseQuantity(item) {
-          if (item.quantity > 1) {
-            item.quantity--
-          }
+        updateQuantity(productId, quantity) {
+          if (!this.shoppingCart) return;
+
+          const updatedItems = this.shoppingCart.items.map(item => {
+            if (item.productId._id === productId) {
+              item.quantity = quantity;
+            }
+            return item;
+          });
+
+          console.log('Updated items:', updatedItems);
+
+          axios.put(`https://localhost:3000/api/shopping-cart/${this.shoppingCart._id}`, { items: updatedItems })
+            .then(response => {
+              this.shoppingCart = response.data;
+            })
+            .catch(error => {
+              console.error('Error updating cart:', error);
+            });
         },
         proceedToCheckout() {
           // Logica per procedere al checkout
