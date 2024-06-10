@@ -126,6 +126,10 @@
           </v-card-item>
 
           <v-card-text>
+            <div class="text-center">Price: € {{ product.price.toFixed(2) }}</div>
+          </v-card-text>
+
+          <v-card-text>
             <v-col class="mx-0">
               <v-row class="d-flex justify-center" align="center">
                 <div v-if="product.ratingData" class="d-flex align-center">
@@ -154,80 +158,83 @@
             </v-col>
           </v-card-text>
 
-          <v-divider class="mx-4 mb-1"></v-divider>
+          <div v-if="!isAdmin && username">
 
-          <v-col cols="12">
-            <v-menu transition="scroll-x-transition">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  class="rounded-xl"
-                  color="brown lighten-1"
-                  text="Add to cart"
-                  block
-                  border
-                  v-bind="props"
-                ></v-btn>
-              </template>
-              <v-list class="rounded-xl" :style="{ height: '200px', overflow: 'auto' }">
-                <v-list-item v-for="n in product.availability" :key="n" link @click="addToCart(product._id, n)">
-                  <v-list-item-title v-text="n"></v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-col>
+            <v-divider class="mx-4 mb-1"></v-divider>
 
-          <v-card-actions>
-            <v-dialog v-model="dialog" max-width="600">
-              <template v-slot:activator="{ props: activatorProps }">
-                <v-btn
-                  class="rounded-xl"
-                  color="brown lighten-1"
-                  text="Leave a review"
-                  block
-                  border
-                  v-bind="activatorProps"
-                ></v-btn>
-              </template>
-
-              <v-card prepend-icon="mdi-message-draw" title="Leave a review!">
-                <v-card-text>
-                  <v-col>
-                    <v-rating
-                      v-model="review.rating"
-                      color="amber"
-                      density="compact"
-                      size="x-large"
-                      half-increments
-                      hover
-                    ></v-rating>
-                    <v-text-field
-                      v-model="review.text"
-                      hint="Write your review, and be nice :D"
-                      label="Review"
-                      clearable
-                    ></v-text-field>
-                  </v-col>
-                  <small class="text-caption text-medium-emphasis">all fields are required</small>
-                </v-card-text>
-
-                <v-divider></v-divider>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-
-                  <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
-
+            <v-col cols="12">
+              <v-menu transition="scroll-x-transition">
+                <template v-slot:activator="{ props }">
                   <v-btn
-                    :disabled="!isFormValid"
+                    class="rounded-xl"
                     color="brown lighten-1"
-                    text="Save"
-                    variant="tonal"
-                    @click="saveReview(product._id)"
+                    text="Add to cart"
+                    block
+                    border
+                    v-bind="props"
                   ></v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-card-actions>
+                </template>
+                <v-list class="rounded-xl" :style="{ height: '200px', overflow: 'auto' }">
+                  <v-list-item v-for="n in product.availability" :key="n" link @click="addToCart(product._id, n)">
+                    <v-list-item-title v-text="n"></v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </v-col>
+
+            <v-card-actions>
+              <v-dialog v-model="dialog" max-width="600">
+                <template v-slot:activator="{ props: activatorProps }">
+                  <v-btn
+                    class="rounded-xl"
+                    color="brown lighten-1"
+                    text="Leave a review"
+                    block
+                    border
+                    v-bind="activatorProps"
+                  ></v-btn>
+                </template>
+
+                <v-card prepend-icon="mdi-message-draw" title="Leave a review!">
+                  <v-card-text>
+                    <v-col>
+                      <v-rating
+                        v-model="review.rating"
+                        color="amber"
+                        density="compact"
+                        size="x-large"
+                        half-increments
+                        hover
+                      ></v-rating>
+                      <v-text-field
+                        v-model="review.text"
+                        hint="Write your review, and be nice :D"
+                        label="Review"
+                        clearable
+                      ></v-text-field>
+                    </v-col>
+                    <small class="text-caption text-medium-emphasis">all fields are required</small>
+                  </v-card-text>
+
+                  <v-divider></v-divider>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+
+                    <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
+
+                    <v-btn
+                      :disabled="!isFormValid"
+                      color="brown lighten-1"
+                      text="Save"
+                      variant="tonal"
+                      @click="saveReview(product._id)"
+                    ></v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-card-actions>
+          </div>
         </v-card>
       </v-col>
     </v-row>
