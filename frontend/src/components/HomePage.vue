@@ -1,5 +1,5 @@
 <template>
-  <v-row align="center" style="height: 100vh;">
+  <v-row align="center" style="height: calc(98vh - var(--v-layout-top) - var(--v-layout-bottom))">
     <v-col cols="6">
       <v-card class="elevation-10 homepage-card" color="brown darken-4" dark>
         <v-card-title class="white--text">

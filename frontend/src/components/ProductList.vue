@@ -1,244 +1,242 @@
 <template>
-  <v-container>
-    <div v-if="isAdmin" class="text-center">
-      <v-btn color="green" @click="showAddProductDialog = true">Add New Product</v-btn>
+  <div v-if="isAdmin" class="text-center">
+    <v-btn color="green" @click="showAddProductDialog = true">Add New Product</v-btn>
 
-      <v-dialog v-model="showAddProductDialog" max-width="600px">
-        <v-card>
-          <v-card-title>
-            <span class="headline">Add New Product</span>
-          </v-card-title>
+    <v-dialog v-model="showAddProductDialog" max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Add New Product</span>
+        </v-card-title>
 
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-text-field label="Name" v-model="newProduct.name" required></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field label="Category" v-model="newProduct.category" required></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field label="Ingredients" v-model="newProduct.ingredients" hint="Comma separated" required></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field label="Price" v-model="newProduct.price" type="number" required></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field label="Availability" v-model="newProduct.availability" type="number"></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-switch label="Vegan" v-model="newProduct.vegan"></v-switch>
+              </v-col>
+              <v-col cols="12">
+                <v-switch label="Gluten Free" v-model="newProduct.gluten_free"></v-switch>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="showAddProductDialog = false">Cancel</v-btn>
+          <v-btn color="blue darken-1" text @click="addProduct">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
+  <v-row>
+    <v-col v-for="product in products" :key="product._id">
+      <v-card class="mx-auto my-12 rounded-lg productlist-card" max-width="350">
+        <div v-if="isAdmin" class="admin-controls"> 
+          <v-btn 
+            class="red--text text--lighten-1 delete-button" 
+            @click="deleteProduct(product._id)" 
+            icon 
+          > 
+            <v-icon color="red">mdi-close</v-icon> 
+          </v-btn> 
+        </div>
+        
+        <div class="image-container">
+          <v-img
+            height="200"
+            width="200"
+            :src="getImage(product)"
+            cover
+          ></v-img>
+        </div>
+
+        <div v-if="isAdmin">
+          <v-divider class="mx-4 mb-1"></v-divider>
           <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12" sm="6">
-                  <v-text-field label="Name" v-model="newProduct.name" required></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field label="Category" v-model="newProduct.category" required></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field label="Ingredients" v-model="newProduct.ingredients" hint="Comma separated" required></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field label="Price" v-model="newProduct.price" type="number" required></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field label="Availability" v-model="newProduct.availability" type="number"></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-switch label="Vegan" v-model="newProduct.vegan"></v-switch>
-                </v-col>
-                <v-col cols="12">
-                  <v-switch label="Gluten Free" v-model="newProduct.gluten_free"></v-switch>
-                </v-col>
-              </v-row>
-            </v-container>
+            <v-file-input
+              label="Upload Image"
+              @change="uploadImage($event, product)"
+              accept="image/*"
+            ></v-file-input>
+
+            <v-text-field
+              label="Modify Name"
+              v-model="product.name"
+              @change="updateName(product._id, product.name)"
+            ></v-text-field>
+            <v-text-field
+              label="Modify Price"
+              v-model="product.price"
+              type="number"
+              @change="updatePrice(product._id, product.price)"
+            ></v-text-field>
+
+            <v-text-field
+              label="Modify Availability"
+              v-model="product.availability"
+              type="number"
+              @change="updateAvailability(product._id, product.availability)"
+            ></v-text-field>
+            <v-text-field
+              label="Modify Ingredients"
+              v-model="product.ingredients"
+              
+              @change="updateIngredients(product._id, product.ingredients)"
+            ></v-text-field>
           </v-card-text>
+        </div>
+
+        <v-card-item>
+          <v-card-title class="text-center">{{ product.name }}</v-card-title>
+
+          <v-card-subtitle class="text-center">
+            Availability: {{ product.availability }}
+            <v-icon
+              v-if="product.availability === 0"
+              color="error"
+              icon="mdi-alert-circle"
+              size="x-small"
+              :style="{ position: 'relative', top: '-1px' }"
+            ></v-icon>
+            <v-icon
+              v-else
+              color="success"
+              icon="mdi-check-circle"
+              size="x-small"
+              :style="{ position: 'relative', top: '-2px' }"
+            ></v-icon>
+          </v-card-subtitle>
+        </v-card-item>
+
+        <v-card-text>
+          <div class="text-center">Price: € {{ product.price.toFixed(2) }}</div>
+        </v-card-text>
+
+        <v-card-text>
+          <v-col class="mx-0">
+            <v-row class="d-flex justify-center" align="center">
+              <div v-if="product.ratingData" class="d-flex align-center">
+                <v-rating
+                  :model-value="product.ratingData.averageRating"
+                  color="amber"
+                  density="compact"
+                  size="large"
+                  half-increments
+                  readonly
+                ></v-rating>
+                <div class="text-grey ms-4">
+                  {{ product.ratingData.averageRating.toFixed(1) }} ({{ product.ratingData.totalReviews }})
+                </div>
+              </div>
+              <div v-else>
+                <div class="text-grey ms-4">Be the first one to leave a rating for this product!</div>
+              </div>
+            </v-row>
+
+            <div class="my-4 text-subtitle-1"></div>
+
+            <div align="center" style="max-height: 20px; overflow-y: auto">
+              {{ product.ingredients.join(', ') }}
+            </div>
+          </v-col>
+        </v-card-text>
+
+        <div v-if="!isAdmin && username">
+
+          <v-divider class="mx-4 mb-1"></v-divider>
+
+          <v-col cols="12">
+            <v-menu transition="scroll-x-transition">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  class="rounded-xl"
+                  color="brown lighten-1"
+                  text="Add to cart"
+                  block
+                  border
+                  v-bind="props"
+                ></v-btn>
+              </template>
+              <v-list class="rounded-xl" :style="{ height: '200px', overflow: 'auto' }">
+                <v-list-item v-for="n in product.availability" :key="n" link @click="addToCart(product._id, n)">
+                  <v-list-item-title v-text="n"></v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-col>
 
           <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="showAddProductDialog = false">Cancel</v-btn>
-            <v-btn color="blue darken-1" text @click="addProduct">Save</v-btn>
+            <v-dialog v-model="dialog" max-width="600">
+              <template v-slot:activator="{ props: activatorProps }">
+                <v-btn
+                  class="rounded-xl"
+                  color="brown lighten-1"
+                  text="Leave a review"
+                  block
+                  border
+                  v-bind="activatorProps"
+                ></v-btn>
+              </template>
+
+              <v-card prepend-icon="mdi-message-draw" title="Leave a review!">
+                <v-card-text>
+                  <v-col>
+                    <v-rating
+                      v-model="review.rating"
+                      color="amber"
+                      density="compact"
+                      size="x-large"
+                      half-increments
+                      hover
+                    ></v-rating>
+                    <v-text-field
+                      v-model="review.text"
+                      hint="Write your review, and be nice :D"
+                      label="Review"
+                      clearable
+                    ></v-text-field>
+                  </v-col>
+                  <small class="text-caption text-medium-emphasis">all fields are required</small>
+                </v-card-text>
+
+                <v-divider></v-divider>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+
+                  <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
+
+                  <v-btn
+                    :disabled="!isFormValid"
+                    color="brown lighten-1"
+                    text="Save"
+                    variant="tonal"
+                    @click="saveReview(product._id)"
+                  ></v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
           </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </div>
-    <v-row>
-      <v-col v-for="product in products" :key="product._id">
-        <v-card class="mx-auto my-12 rounded-lg productlist-card" max-width="350">
-          <div v-if="isAdmin" class="admin-controls"> 
-            <v-btn 
-              class="red--text text--lighten-1 delete-button" 
-              @click="deleteProduct(product._id)" 
-              icon 
-            > 
-              <v-icon color="red">mdi-close</v-icon> 
-            </v-btn> 
-          </div>
-          
-          <div class="image-container">
-            <v-img
-              height="200"
-              width="200"
-              :src="getImage(product)"
-              cover
-            ></v-img>
-          </div>
-
-          <div v-if="isAdmin">
-            <v-divider class="mx-4 mb-1"></v-divider>
-            <v-card-text>
-              <v-file-input
-                label="Upload Image"
-                @change="uploadImage($event, product)"
-                accept="image/*"
-              ></v-file-input>
-
-              <v-text-field
-                label="Modify Name"
-                v-model="product.name"
-                @change="updateName(product._id, product.name)"
-              ></v-text-field>
-              <v-text-field
-                label="Modify Price"
-                v-model="product.price"
-                type="number"
-                @change="updatePrice(product._id, product.price)"
-              ></v-text-field>
-
-              <v-text-field
-                label="Modify Availability"
-                v-model="product.availability"
-                type="number"
-                @change="updateAvailability(product._id, product.availability)"
-              ></v-text-field>
-              <v-text-field
-                label="Modify Ingredients"
-                v-model="product.ingredients"
-                
-                @change="updateIngredients(product._id, product.ingredients)"
-              ></v-text-field>
-            </v-card-text>
-          </div>
-
-          <v-card-item>
-            <v-card-title class="text-center">{{ product.name }}</v-card-title>
-
-            <v-card-subtitle class="text-center">
-              Availability: {{ product.availability }}
-              <v-icon
-                v-if="product.availability === 0"
-                color="error"
-                icon="mdi-alert-circle"
-                size="x-small"
-                :style="{ position: 'relative', top: '-1px' }"
-              ></v-icon>
-              <v-icon
-                v-else
-                color="success"
-                icon="mdi-check-circle"
-                size="x-small"
-                :style="{ position: 'relative', top: '-2px' }"
-              ></v-icon>
-            </v-card-subtitle>
-          </v-card-item>
-
-          <v-card-text>
-            <div class="text-center">Price: € {{ product.price.toFixed(2) }}</div>
-          </v-card-text>
-
-          <v-card-text>
-            <v-col class="mx-0">
-              <v-row class="d-flex justify-center" align="center">
-                <div v-if="product.ratingData" class="d-flex align-center">
-                  <v-rating
-                    :model-value="product.ratingData.averageRating"
-                    color="amber"
-                    density="compact"
-                    size="large"
-                    half-increments
-                    readonly
-                  ></v-rating>
-                  <div class="text-grey ms-4">
-                    {{ product.ratingData.averageRating.toFixed(1) }} ({{ product.ratingData.totalReviews }})
-                  </div>
-                </div>
-                <div v-else>
-                  <div class="text-grey ms-4">Be the first one to leave a rating for this product!</div>
-                </div>
-              </v-row>
-
-              <div class="my-4 text-subtitle-1"></div>
-
-              <div align="center" style="max-height: 20px; overflow-y: auto">
-                {{ product.ingredients.join(', ') }}
-              </div>
-            </v-col>
-          </v-card-text>
-
-          <div v-if="!isAdmin && username">
-
-            <v-divider class="mx-4 mb-1"></v-divider>
-
-            <v-col cols="12">
-              <v-menu transition="scroll-x-transition">
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                    class="rounded-xl"
-                    color="brown lighten-1"
-                    text="Add to cart"
-                    block
-                    border
-                    v-bind="props"
-                  ></v-btn>
-                </template>
-                <v-list class="rounded-xl" :style="{ height: '200px', overflow: 'auto' }">
-                  <v-list-item v-for="n in product.availability" :key="n" link @click="addToCart(product._id, n)">
-                    <v-list-item-title v-text="n"></v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </v-col>
-
-            <v-card-actions>
-              <v-dialog v-model="dialog" max-width="600">
-                <template v-slot:activator="{ props: activatorProps }">
-                  <v-btn
-                    class="rounded-xl"
-                    color="brown lighten-1"
-                    text="Leave a review"
-                    block
-                    border
-                    v-bind="activatorProps"
-                  ></v-btn>
-                </template>
-
-                <v-card prepend-icon="mdi-message-draw" title="Leave a review!">
-                  <v-card-text>
-                    <v-col>
-                      <v-rating
-                        v-model="review.rating"
-                        color="amber"
-                        density="compact"
-                        size="x-large"
-                        half-increments
-                        hover
-                      ></v-rating>
-                      <v-text-field
-                        v-model="review.text"
-                        hint="Write your review, and be nice :D"
-                        label="Review"
-                        clearable
-                      ></v-text-field>
-                    </v-col>
-                    <small class="text-caption text-medium-emphasis">all fields are required</small>
-                  </v-card-text>
-
-                  <v-divider></v-divider>
-
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-
-                    <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
-
-                    <v-btn
-                      :disabled="!isFormValid"
-                      color="brown lighten-1"
-                      text="Save"
-                      variant="tonal"
-                      @click="saveReview(product._id)"
-                    ></v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-card-actions>
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+        </div>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 
 <script>

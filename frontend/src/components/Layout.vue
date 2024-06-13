@@ -42,9 +42,11 @@
     </v-app-bar>
 
     <v-main>
-      <v-container>
-        <router-view></router-view>
-      </v-container>
+      <div class="background">
+        <v-container>
+          <router-view></router-view>
+        </v-container>
+      </div>
     </v-main>
 
     <v-footer app color="brown lighten-1" dark>
@@ -59,7 +61,7 @@
 import { jwtDecode } from "jwt-decode";
 
 export default {
-  name: 'AppLayout',
+  name: 'Layout',
   data() {
     return {
       filters: ['Gluten Free', 'Vegan', 'Bread', 'Desserts'],
@@ -110,6 +112,27 @@ export default {
 </script>
 
 <style scoped>
+.background {
+  min-height: calc(100vh - var(--v-layout-top) - var(--v-layout-bottom));
+  background-image: url('@/assets/castagnole.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.9;
+  position: relative;
+}
+
+.background::before {
+  content: '';
+  background-color: rgba(255, 255, 255, 0.5);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
