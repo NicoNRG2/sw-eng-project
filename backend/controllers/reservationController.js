@@ -1,95 +1,74 @@
 const Reservation = require('../models/reservation');
-const ShoppingCart = require('../models/shoppingCart');
+const User = require('../models/user');
 
-// Function to fetch all the reservations
+// Get all reservations
 const getAllReservations = async (req, res) => {
   try {
-    const reservations = await Reservation.find().populate('customerName').populate('shoppingCart');
-    res.json(reservations);
+    const reservations = await Reservation.find().populate('userId').populate('items.productId');
+    res.status(200).json(reservations);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error retrieving reservations', error });
   }
 };
 
-
-// Function to get a single reservation by ID
-const getReservationById = async (req, res) => {
+// Get reservations by user
+const getReservationsByUser = async (req, res) => {
+  const userId = req.params.userId;
   try {
-    const reservation = await Reservation.findById(req.params.id).populate('customerName').populate('shoppingCart');
-    if (reservation == null) {
-      return res.status(404).json({ message: 'Reservation not found' });
-    }
-    res.json(reservation);
+    const reservations = await Reservation.find({ userId }).populate('items.productId');
+    res.status(200).json(reservations);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error retrieving reservations for user', error });
   }
 };
 
-// Function to create a new reservation based on an existing shopping cart
+// Create a new reservation
 const createReservation = async (req, res) => {
-  const { pickupTime, customerName, shoppingCartId } = req.body;
+  const { pickupTime, status, userId, items } = req.body;
 
   try {
-    const shoppingCart = await ShoppingCart.getCartById(shoppingCartId);
-    if (!shoppingCart) {
-      return res.status(400).json({ message: 'Shopping cart not found' });
-    }
-
-    const totalCost = shoppingCart.totalCost;
-
-    const reservation = new Reservation({
-      pickupTime,
-      customerName,
-      status: 'pending',
-      quantities: shoppingCart.quantities,
-      products: shoppingCart.products,
-      totalCost: shoppingCart.totalCost
-    });
-
-    const newReservation = await reservation.save();
+    const newReservation = new Reservation({ pickupTime, status, userId, items });
+    await newReservation.save();
     res.status(201).json(newReservation);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: 'Error creating reservation', error });
   }
 };
 
-// Function to update reservation status
+// Update a reservation
 const updateReservation = async (req, res) => {
+  const reservationId = req.params.id;
+  const updates = req.body;
+
   try {
-    const reservation = await Reservation.findById(req.params.id);
-    if (reservation == null) {
+    const updatedReservation = await Reservation.findByIdAndUpdate(reservationId, updates, { new: true }).populate('items.productId');
+    if (!updatedReservation) {
       return res.status(404).json({ message: 'Reservation not found' });
     }
-
-    if (req.body.status != null) {
-      reservation.status = req.body.status;
-    }
-
-    const updatedReservation = await reservation.save();
-    res.json(updatedReservation);
+    res.status(200).json(updatedReservation);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: 'Error updating reservation', error });
   }
 };
 
-// Function to delete a reservation
+// Delete a reservation
 const deleteReservation = async (req, res) => {
+  const reservationId = req.params.id;
+
   try {
-    const reservation = await Reservation.findById(req.params.id);
-    if (reservation == null) {
+    const deletedReservation = await Reservation.findByIdAndDelete(reservationId);
+    if (!deletedReservation) {
       return res.status(404).json({ message: 'Reservation not found' });
     }
-
-    await reservation.remove();
-    res.json({ message: 'Reservation deleted' });
+    res.status(200).json({ message: 'Reservation deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error deleting reservation', error });
   }
 };
 
 module.exports = {
   getAllReservations,
-  getReservationById,
+  getReservationsByUser,
   createReservation,
   updateReservation,
   deleteReservation

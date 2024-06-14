@@ -5,29 +5,47 @@ const reservationSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
-  customerName: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
   status: {
     type: String,
     enum: ['accepted', 'rejected', 'pending', 'completed'],
     default: 'pending'
   },
-  quantities: {
-    type: Map,
-    of: Number,
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   },
-  products: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: true
+  items: [{
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1
+    }
   }],
-  totalCost: {
+  totalPrice: {
     type: Number,
-    required: true
+    default: 0
+  }
+});
+
+// Calculate total price before saving
+reservationSchema.pre('save', async function(next) {
+  try {
+    const reservation = this;
+    let total = 0;
+    for (const item of reservation.items) {
+      const product = await mongoose.model('Product').findById(item.productId);
+      total += product.price * item.quantity;
+    }
+    reservation.totalPrice = total;
+    next();
+  } catch (error) {
+    next(error);
   }
 });
 
