@@ -1,5 +1,6 @@
-const Reservation = require('../models/reservation');
-const User = require('../models/user');
+const Reservation = require('../models/Reservation'); // Assicurati di modificare il percorso se necessario
+const User = require('../models/User'); // Assicurati di modificare il percorso se necessario
+const Product = require('../models/Product'); // Assicurati di modificare il percorso se necessario
 
 // Get all reservations
 const getAllReservations = async (req, res) => {
@@ -27,7 +28,16 @@ const createReservation = async (req, res) => {
   const { pickupTime, status, userId, items } = req.body;
 
   try {
-    const newReservation = new Reservation({ pickupTime, status, userId, items });
+    let totalPrice = 0;
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        return res.status(400).json({ message: `Product with id ${item.productId} not found` });
+      }
+      totalPrice += product.price * item.quantity;
+    }
+
+    const newReservation = new Reservation({ pickupTime, status, userId, items, totalPrice });
     await newReservation.save();
     res.status(201).json(newReservation);
   } catch (error) {
@@ -41,6 +51,18 @@ const updateReservation = async (req, res) => {
   const updates = req.body;
 
   try {
+    let totalPrice = 0;
+    if (updates.items) {
+      for (const item of updates.items) {
+        const product = await Product.findById(item.productId);
+        if (!product) {
+          return res.status(400).json({ message: `Product with id ${item.productId} not found` });
+        }
+        totalPrice += product.price * item.quantity;
+      }
+      updates.totalPrice = totalPrice;
+    }
+
     const updatedReservation = await Reservation.findByIdAndUpdate(reservationId, updates, { new: true }).populate('items.productId');
     if (!updatedReservation) {
       return res.status(404).json({ message: 'Reservation not found' });
