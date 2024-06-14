@@ -5,6 +5,7 @@ import ProductList from '../components/ProductList.vue'
 import Registration from '@/components/Registration.vue';
 import ShoppingCart from '@/components/ShoppingCart.vue'
 import Layout from '../components/Layout.vue';
+import Profile from '@/components/Profile.vue'
 
 const routes = [
   {
@@ -35,6 +36,11 @@ const routes = [
         path: 'shoppingcart',
         name: 'ShoppingCart',
         component: ShoppingCart
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: Profile
       }
     ]
   }
