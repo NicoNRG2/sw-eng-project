@@ -1,51 +1,57 @@
 <template>
-<v-container>
-    <v-card>
-    <v-card-title>
-        <span class="headline">Orders</span>
-    </v-card-title>
-    <v-card-text>
-        <v-data-table
-        :headers="isAdmin ? adminHeaders : userHeaders"
-        :items="reservations"
-        :items-per-page="5"
-        class="elevation-1"
-        >
-        <template v-slot:item.status="{ item }">
-            <v-select
-            v-if="isAdmin"
-            v-model="item.status"
-            :items="statuses"
-            @change="updateStatus(item)"
-            ></v-select>
-            <span v-else>{{ item.status }}</span>
-        </template>
-        <template v-slot:item.items="{ item }">
-            <span>
-              <v-chip
-                v-for="(product, index) in item.items"
-                :key="index"
-                class="ma-1"
-                outlined
+    <v-container>
+      <v-card>
+        <v-card-title>
+          <span class="headline">Orders</span>
+        </v-card-title>
+        <v-card-text>
+          <v-data-table
+            :headers="isAdmin ? adminHeaders : userHeaders"
+            :items="reservations"
+            :items-per-page="5"
+            class="elevation-1"
+          >
+            <template v-slot:item.pickupTime="{ item }">
+              <span>{{ formatDateTime(item.pickupTime) }}</span>
+            </template>
+            <template v-slot:item.status="{ item }">
+              <v-select
+                v-if="isAdmin"
+                v-model="item.status"
+                :items="statuses"
+                @update:model-value="updateStatus(item)"
+              ></v-select>
+              <span v-else>{{ item.status }}</span>
+            </template>
+            <template v-slot:item.items="{ item }">
+              <span>
+                <v-chip
+                  v-for="(product, index) in item.items"
+                  :key="index"
+                  class="ma-1"
+                  outlined
+                >
+                  {{ product.productId.name }}
+                </v-chip>
+              </span>
+            </template>
+            <template v-slot:item.totalPrice="{ item }">
+              <span>{{ item.totalPrice }} €</span>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <v-btn
+                v-if="!isAdmin && item.status === 'pending'"
+                color="red"
+                @click="deleteReservation(item._id)"
               >
-                {{ product.productId.name }}
-              </v-chip>
-            </span>
-          </template>
-        <template v-slot:item.actions="{ item }">
-            <v-btn
-            v-if="!isAdmin && item.status === 'pending'"
-            color="red"
-            @click="deleteReservation(item._id)"
-            >
-            Cancel
-            </v-btn>
-        </template>
-        </v-data-table>
-    </v-card-text>
-    </v-card>
-</v-container>
-</template>
+                Cancel
+              </v-btn>
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-container>
+  </template>
   
   <script>
   import axios from 'axios';
@@ -56,74 +62,96 @@
     data() {
       return {
         adminHeaders: [
-            { title: 'Pickup Time', value: 'pickupTime' },
-            { title: 'Status', value: 'status' },
-            { title: 'User', value: 'userId.name' },
-            { title: 'Items', value: 'items' },
-            { title: 'Total Price', value: 'totalPrice' },
-            { title: 'Actions', value: 'actions', sortable: false },
+          { title: 'Pickup Time', value: 'pickupTime' },
+          { title: 'Status', value: 'status' },
+          { title: 'User', value: 'userId.username' },
+          { title: 'Items', value: 'items' },
+          { title: 'Total Price', value: 'totalPrice' },
         ],
         userHeaders: [
-            { title: 'Pickup Time', value: 'pickupTime' },
-            { title: 'Status', value: 'status' },
-            { title: 'Items', value: 'items' },
-            { title: 'Total Price', value: 'totalPrice' },
-            { title: 'Actions', value: 'actions', sortable: false },
+          { title: 'Pickup Time', value: 'pickupTime' },
+          { title: 'Status', value: 'status' },
+          { title: 'Items', value: 'items' },
+          { title: 'Total Price', value: 'totalPrice' },
+          { title: 'Actions', value: 'actions', sortable: false },
         ],
         reservations: [],
-        statuses: ['accepted', 'rejected', 'pending', 'completed'],
-        isAdmin: false
+        statuses: [
+            { title: 'Accepted', value: 'accepted' },
+            { title: 'Rejected', value: 'rejected' },
+            { title: 'Pending', value: 'pending' },
+            { title: 'Completed', value: 'completed' },
+        ],
+        isAdmin: false,
+        userId: null,
+        username: null,
       };
     },
     created() {
       const token = localStorage.getItem('token');
-        if (token) {
+      if (token) {
         const decodedToken = jwtDecode(token);
         this.userId = decodedToken.userId;
         this.username = decodedToken.username;
         this.checkAdmin();
-        }
-        this.fetchOrders();
+      }
+      this.fetchOrders();
     },
     methods: {
       fetchOrders() {
-        try {
-          axios.get(this.isAdmin ? 'https://localhost:3000/api/reservations' : `https://localhost:3000/api/reservations/user/${this.userId}`).then((response) => {
+        const url = this.isAdmin
+          ? 'https://localhost:3000/api/reservations'
+          : `https://localhost:3000/api/reservations/user/${this.userId}`;
+        axios
+          .get(url)
+          .then((response) => {
             this.reservations = response.data;
+          })
+          .catch((error) => {
+            console.error('Error fetching reservations:', error);
           });
-        } catch (error) {
-          console.error('Error fetching reservations:', error);
-        }
       },
       async deleteReservation(id) {
         try {
-            await axios.delete(`/api/reservations/${id}`);
-            this.fetchReservations();
+          await axios.delete(`https://localhost:3000/api/reservations/${id}`);
+          this.fetchOrders();
         } catch (error) {
-            console.error('Error deleting reservation:', error);
+          console.error('Error deleting reservation:', error);
         }
       },
       async updateStatus(reservation) {
         try {
-            await axios.put(`/api/reservations/${reservation._id}`, {
+          await axios.put(`https://localhost:3000/api/reservations/${reservation._id}`, {
             status: reservation.status,
-            });
+          });
+          console.log('Reservation status updated');
         } catch (error) {
-            console.error('Error updating reservation status:', error);
+          console.error('Error updating reservation status:', error);
         }
       },
       checkAdmin() {
-        if (this.username === 'admin') {
-            this.isAdmin = true;
-        } else {
-            this.isAdmin = false;
-        }
-      }
-    }
+        this.isAdmin = this.username === 'admin';
+      },
+      formatDateTime(dateTime) {
+        const options = {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        };
+        return new Intl.DateTimeFormat('en-GB', options).format(new Date(dateTime));
+      },
+    },
   };
   </script>
   
   <style scoped>
-  /* Stili opzionali */
+  .headline {
+    font-weight: bold;
+  }
+  .v-data-table-header th {
+    background-color: #f5f5f5;
+    color: #000;
+  }
   </style>
-  
