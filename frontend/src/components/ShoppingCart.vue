@@ -23,6 +23,7 @@
                   € {{item.productId.price}}
                 </v-card-text>
 
+                <!--
                 <v-dialog transition="dialog-bottom-transition" v-model="dialog" max-width="auto">
                   <template v-slot:activator="{ props: activatorProps }">
                     <v-btn 
@@ -39,7 +40,7 @@
                       </v-col>
                     </v-card-text>
                   </v-card>
-                </v-dialog>
+                </v-dialog>-->
 
                 <v-text-field
                   v-model="item.quantity"
@@ -100,6 +101,30 @@
           </v-card-actions>
         </v-card>
       </div>
+
+      <v-dialog v-model="dialog" persistent max-width="600px">
+        <v-card>
+          <v-card-title>
+            <span class="headline">Set Pickup Time</span>
+          </v-card-title>
+          <v-card-text>
+            <v-form ref="form">
+              <v-text-field
+                v-model="pickupTime"
+                label="Pickup Time"
+                type="datetime-local"
+                required
+              ></v-text-field>
+            </v-form>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="dialog = false">Cancel</v-btn>
+            <v-btn color="blue darken-1" text @click="createReservation">Submit</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
     </v-col>
   </v-row>
   </template>
@@ -113,7 +138,8 @@
       data() {
         return {
           shoppingCart: '',
-          dialog: false
+          dialog: false,
+          pickupTime: ''
         }
       },
       computed: {
@@ -160,8 +186,23 @@
             });
         },
         proceedToCheckout() {
-          // Logica per procedere al checkout
-          console.log('Procedi al checkout')
+          this.dialog = true;
+        },
+        async createReservation() {
+          if (this.$refs.form.validate()) {
+            try {
+              const response = await axios.post(`https://localhost:3000/api/reservations`, {
+                pickupTime: this.pickupTime,
+                userId: this.userId,
+                items: this.shoppingCart.items,
+              });
+              this.dialog = false;
+              // empty the shopping cart ----------------------------todo---------------------
+              this.$router.push('/orders');
+            } catch (error) {
+              console.error('Error creating reservation:', error);
+            }
+          }
         },
         async getShoppingCart(userId){
           try {

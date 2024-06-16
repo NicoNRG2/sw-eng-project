@@ -29,6 +29,9 @@
           <v-list-item @click="goToProfile">
             <v-list-item-title>Profile</v-list-item-title>
           </v-list-item>
+          <v-list-item @click="goToOrders">
+            <v-list-item-title>Orders</v-list-item-title>
+          </v-list-item>
           <v-list-item @click="logout">
             <v-list-item-title>Logout</v-list-item-title>
           </v-list-item>
@@ -96,6 +99,10 @@ export default {
 
     goToProfile() {
       this.$router.push('/profile');
+    },
+
+    goToOrders() {
+      this.$router.push('/orders');
     },
 
     login() {

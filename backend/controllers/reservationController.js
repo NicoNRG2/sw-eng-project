@@ -1,6 +1,6 @@
-const Reservation = require('../models/Reservation'); // Assicurati di modificare il percorso se necessario
-const User = require('../models/User'); // Assicurati di modificare il percorso se necessario
-const Product = require('../models/Product'); // Assicurati di modificare il percorso se necessario
+const Reservation = require('../models/reservation');
+const User = require('../models/user');
+const Product = require('../models/product');
 
 // Get all reservations
 const getAllReservations = async (req, res) => {
