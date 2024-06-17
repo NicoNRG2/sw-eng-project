@@ -11,8 +11,9 @@
             <v-row>
               <v-img
                 :width="200"
-                aspect-ratio="1/1"
-                src="https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp"
+                :height="200"
+                aspect-ratio="1"
+                :src="getImage(item.productId)"
                 cover
               ></v-img>
               <v-col>
@@ -153,16 +154,11 @@
       created() {
         const token = localStorage.getItem('token');
         if (token) {
-          console.log('Yes token');
           const decodedToken = jwtDecode(token);
           this.userId = decodedToken.userId;
-          console.log(this.userId);
           if (this.userId) {
-            console.log('Sta andando');
             this.getShoppingCart(this.userId);
           }
-        } else {
-          console.log('No token')
         }
       },
       methods: {
@@ -175,9 +171,6 @@
             }
             return item;
           });
-
-          console.log('Updated items:', updatedItems);
-
           axios.put(`https://localhost:3000/api/shopping-cart/${this.shoppingCart._id}`, { items: updatedItems })
             .then(response => {
               this.shoppingCart = response.data;
@@ -217,7 +210,6 @@
           }
         },
         async removeItem(item) {
-          //console.log('Removing item:', item.productId._id, 'from user:', this.userId);
           try {
             await axios.post(`https://localhost:3000/api/shopping-cart/remove`, { userId: this.userId, productId: item.productId._id });
             this.getShoppingCart(this.userId);
@@ -225,6 +217,11 @@
             console.error('Error removing item from cart:', error);
           }
         },
+        getImage(product) {
+          return product.images && product.images.length > 0
+            ? `https://localhost:3000/uploads/${product.images[0]}`
+            : 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp';
+    },
       },
     }
   </script>
