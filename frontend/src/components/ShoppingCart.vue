@@ -87,16 +87,16 @@
       <div class="sticky-sidebar">
         <v-card class="mx-auto">
           <v-card-text>
-            <div class="text-h6 font-weight-medium">Riepilogo Ordine</div>
+            <div class="text-h6 font-weight-medium">Order Summary</div>
             <v-divider class="my-2"></v-divider>
             <div class="d-flex justify-space-between">
-              <span>Totale:</span>
+              <span>Total:</span>
               <span>{{ shoppingCart.totalPrice }} €</span>
             </div>
           </v-card-text>
           <v-card-actions>
             <v-btn color="brown lighten-1" block @click="proceedToCheckout"
-              >Procedi al checkout</v-btn
+              >Proceed to checkout</v-btn
             >
           </v-card-actions>
         </v-card>
@@ -144,9 +144,10 @@
       },
       computed: {
         totalPrice() {
-          return this.cartItems.reduce((total, item) => {
+          const total = this.cartItems.reduce((total, item) => {
             return total + item.price * item.quantity
           }, 0)
+          return total.toFixed(2)
         },
       },
       created() {
