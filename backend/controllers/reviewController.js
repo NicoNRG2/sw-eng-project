@@ -5,7 +5,7 @@ const User = require('../models/user');
 // Function to get all reviews
 const getAllReviews = async (req, res) => {
   try {
-    const reviews = await Review.find().populate('product', 'name').populate('user', 'name');
+    const reviews = await Review.find();
     res.json(reviews);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -15,7 +15,7 @@ const getAllReviews = async (req, res) => {
 // Function to get a review by ID
 const getReviewById = async (req, res) => {
   try {
-    const review = await Review.findById(req.params.id).populate('product', 'name').populate('user', 'name');
+    const review = await Review.findById(req.params.id);
     if (review == null) {
       return res.status(404).json({ message: 'Review not found' });
     }
@@ -29,7 +29,7 @@ const getReviewById = async (req, res) => {
 const getReviewsByProductId = async (req, res) => {
   try {
     const productId = req.params.productId;
-    const reviews = await Review.find({ product: productId }).populate('product', 'name').populate('user', 'name');
+    const reviews = await Review.find({ product: productId });
     if (reviews.length === 0) {
       return res.status(404).json({ message: 'No reviews found for this product' });
     }
