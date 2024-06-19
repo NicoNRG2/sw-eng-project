@@ -28,16 +28,6 @@ app.use((req, res, next) => {
   }
 });
 
-// Connect to the MongoDB database
-mongoose.connect(dbConnectionString)
-  .then(() => {
-    console.log('Successfully connected to the MongoDB database');
-  })
-  .catch((err) => {
-    console.error('Error connecting to the MongoDB database:', err);
-    process.exit(1);
-  });
-
 // Use routes for different classes
 app.use('/api/products', productRoutes);
 app.use('/api/reservations', reservationRoutes);
@@ -48,12 +38,28 @@ app.use('/api/users', userRoutes);
 // Serve static files from the 'uploads' folder
 app.use('/uploads', express.static('uploads'));
 
-// HTTPS server setup
-const options = {
-  key: fs.readFileSync('../server.key'),
-  cert: fs.readFileSync('../server.crt')
-};
+// Export the app for testing purposes
+module.exports = app;
 
-https.createServer(options, app).listen(PORT, () => {
-  console.log(`Backend server listening on port ${PORT}`);
-});
+// Start server only if this file is run directly (not during tests)
+if (require.main === module) {
+  // Connect to the MongoDB database
+  mongoose.connect(dbConnectionString)
+    .then(() => {
+      console.log('Successfully connected to the MongoDB database');
+
+      // HTTPS server setup
+      const options = {
+        key: fs.readFileSync('../server.key'),
+        cert: fs.readFileSync('../server.crt')
+      };
+
+      https.createServer(options, app).listen(PORT, () => {
+        console.log(`Backend server listening on port ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error('Error connecting to the MongoDB database:', err);
+      process.exit(1);
+    });
+}
