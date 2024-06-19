@@ -119,6 +119,11 @@ const loginUser = async (req, res) => {
 
 // Function to protect routes
 const protectRoute = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ message: 'No token, authorization denied' });
+  }
+  
   const token = req.headers.authorization.split(' ')[1];
 
   if (!token) {

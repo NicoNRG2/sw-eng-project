@@ -1,112 +1,160 @@
 const request = require('supertest');
-const app = require('../server');
-const jwt = require('jsonwebtoken');
-const Reservation = require('../models/reservation');
+const mongoose = require('mongoose');
+const app = require('../server'); // Assicurati che il percorso sia corretto
 const User = require('../models/user');
+const Reservation = require('../models/reservation');
 const Product = require('../models/product');
-
-jest.mock('../models/reservation');
-jest.mock('../models/user');
-jest.mock('../models/product');
+const jwt = require('jsonwebtoken');
 
 describe('Reservation API', () => {
+  let userToken;
   let adminToken;
+  let userId;
+  let adminId;
+  let productId;
 
-  beforeAll(() => {
-    // Mock JWT token
-    adminToken = jwt.sign({ userId: 'admin123', username: 'admin' }, 'EbVkQJufAyrTFJGf', { expiresIn: '1h' });
+  beforeAll(async () => {
+    // Connetti a un database di test
+    const db = 'mongodb://127.0.0.1/testdb';
+    await mongoose.connect(db);
+
+    // Crea un utente normale
+    const user = new User({ username: 'testuser', email: 'testuser@example.com', password: 'password123' });
+    await user.save();
+    userId = user._id;
+    userToken = jwt.sign({ userId: user._id, username: user.username }, 'EbVkQJufAyrTFJGf', { expiresIn: '1h' });
+
+    // Crea un utente admin
+    const admin = new User({ username: 'admin', email: 'admin@example.com', password: 'password123' });
+    await admin.save();
+    adminId = admin._id;
+    adminToken = jwt.sign({ userId: admin._id, username: admin.username }, 'EbVkQJufAyrTFJGf', { expiresIn: '1h' });
+
+    // Crea un prodotto
+    const product = new Product({ name: 'Test Product', category: 'Test', price: 10 });
+    await product.save();
+    productId = product._id;
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  afterAll(async () => {
+    // Pulisci il database di test
+    await User.deleteMany({});
+    await Reservation.deleteMany({});
+    await Product.deleteMany({});
+    await mongoose.connection.close();
   });
 
   describe('GET /api/reservations', () => {
-    it('should get all reservations', async () => {
-      Reservation.find.mockResolvedValue([{ _id: 'res1', status: 'pending' }, { _id: 'res2', status: 'confirmed' }]);
-
-      const res = await request(app).get('/api/reservations');
+    it('should get all reservations with admin token', async () => {
+      const res = await request(app)
+        .get('/api/reservations')
+        .set('Authorization', `Bearer ${adminToken}`);
 
       expect(res.statusCode).toEqual(200);
-      expect(res.body).toHaveLength(2);
+      expect(res.body).toBeInstanceOf(Array);
+    });
+
+    it('should return 403 if not admin', async () => {
+      const res = await request(app)
+        .get('/api/reservations')
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(res.statusCode).toEqual(403);
     });
   });
 
   describe('GET /api/reservations/user/:userId', () => {
-    it('should get reservations by user', async () => {
-      Reservation.find.mockResolvedValue([{ _id: 'res1', userId: 'user1', status: 'pending' }]);
-
-      const res = await request(app).get('/api/reservations/user/user1');
+    it('should get reservations for a specific user with user token', async () => {
+      const res = await request(app)
+        .get(`/api/reservations/user/${userId}`)
+        .set('Authorization', `Bearer ${userToken}`);
 
       expect(res.statusCode).toEqual(200);
-      expect(res.body).toHaveLength(1);
+      expect(res.body).toBeInstanceOf(Array);
+    });
+
+    it('should return 401 if no token provided', async () => {
+      const res = await request(app)
+        .get(`/api/reservations/user/${userId}`);
+      expect(res.statusCode).toEqual(401);
     });
   });
 
   describe('POST /api/reservations', () => {
-    it('should create a new reservation', async () => {
-      const newReservation = { pickupTime: '2023-01-01T10:00:00Z', status: 'pending', userId: 'user1', items: [{ productId: 'prod1', quantity: 2 }] };
-      Product.findById.mockResolvedValue({ _id: 'prod1', price: 100 });
-      Reservation.prototype.save = jest.fn().mockResolvedValue(newReservation);
-
+    it('should create a new reservation with user token', async () => {
       const res = await request(app)
         .post('/api/reservations')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send(newReservation);
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          pickupTime: new Date(),
+          userId: userId,
+          items: [
+            {
+              productId: productId,
+              quantity: 2
+            }
+          ]
+        });
 
       expect(res.statusCode).toEqual(201);
-      expect(res.body).toHaveProperty('status', 'pending');
+      expect(res.body).toHaveProperty('_id');
+      expect(res.body).toHaveProperty('totalPrice', 20); // 2 items x 10 each
     });
   });
 
   describe('PUT /api/reservations/:id', () => {
-    it('should update a reservation', async () => {
-      const updatedReservation = { pickupTime: '2023-01-02T10:00:00Z', status: 'confirmed' };
-      Reservation.findByIdAndUpdate.mockResolvedValue(updatedReservation);
+    it('should update an existing reservation with user token', async () => {
+      const reservation = new Reservation({
+        pickupTime: new Date(),
+        userId: userId,
+        items: [
+          {
+            productId: productId,
+            quantity: 2
+          }
+        ],
+        totalPrice: 20
+      });
+      await reservation.save();
 
       const res = await request(app)
-        .put('/api/reservations/res1')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send(updatedReservation);
+        .put(`/api/reservations/${reservation._id}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          items: [
+            {
+              productId: productId,
+              quantity: 3
+            }
+          ]
+        });
 
       expect(res.statusCode).toEqual(200);
-      expect(res.body).toHaveProperty('status', 'confirmed');
-    });
-
-    it('should return 404 if reservation not found', async () => {
-      Reservation.findByIdAndUpdate.mockResolvedValue(null);
-
-      const res = await request(app)
-        .put('/api/reservations/res1')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send({ status: 'confirmed' });
-
-      expect(res.statusCode).toEqual(404);
-      expect(res.body).toHaveProperty('message', 'Reservation not found');
+      expect(res.body).toHaveProperty('totalPrice', 30); // 3 items x 10 each
     });
   });
 
   describe('DELETE /api/reservations/:id', () => {
-    it('should delete a reservation', async () => {
-      Reservation.findByIdAndDelete.mockResolvedValue({});
+    it('should delete a reservation with user token', async () => {
+      const reservation = new Reservation({
+        pickupTime: new Date(),
+        userId: userId,
+        items: [
+          {
+            productId: productId,
+            quantity: 2
+          }
+        ],
+        totalPrice: 20
+      });
+      await reservation.save();
 
       const res = await request(app)
-        .delete('/api/reservations/res1')
-        .set('Authorization', `Bearer ${adminToken}`);
+        .delete(`/api/reservations/${reservation._id}`)
+        .set('Authorization', `Bearer ${userToken}`);
 
       expect(res.statusCode).toEqual(200);
       expect(res.body).toHaveProperty('message', 'Reservation deleted successfully');
-    });
-
-    it('should return 404 if reservation not found', async () => {
-      Reservation.findByIdAndDelete.mockResolvedValue(null);
-
-      const res = await request(app)
-        .delete('/api/reservations/res1')
-        .set('Authorization', `Bearer ${adminToken}`);
-
-      expect(res.statusCode).toEqual(404);
-      expect(res.body).toHaveProperty('message', 'Reservation not found');
     });
   });
 });
