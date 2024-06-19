@@ -1,5 +1,4 @@
 const fs = require('fs');
-const https = require('https');
 const express = require('express');
 const mongoose = require('mongoose');
 const dbConnectionString = require('./dbConfig');
@@ -54,13 +53,7 @@ if (require.main === module) {
     .then(() => {
       console.log('Successfully connected to the MongoDB database');
 
-      // HTTPS server setup
-      const options = {
-        key: fs.readFileSync('../server.key'),
-        cert: fs.readFileSync('../server.crt')
-      };
-
-      https.createServer(options, app).listen(PORT, () => {
+      app.listen(PORT, () => {
         console.log(`Backend server listening on port ${PORT}`);
       });
     })
