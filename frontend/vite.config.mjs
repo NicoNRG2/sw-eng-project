@@ -50,10 +50,6 @@ export default defineConfig({
     ],
   },
   server: {
-    https: {
-      key: fs.readFileSync('../server.key'),
-      cert: fs.readFileSync('../server.crt'),
-    },
     port: 8081,
   },
 })
