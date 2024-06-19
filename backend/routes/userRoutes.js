@@ -4,9 +4,17 @@ const userController = require('../controllers/userController');
 
 /**
  * @swagger
- * /:
+ * tags:
+ *   name: Users
+ *   description: Users management
+ */
+
+/**
+ * @swagger
+ * /users:
  *   get:
  *     summary: Retrieve a list of users
+ *     tags: [Users]
  *     description: Retrieve a list of users from the database.
  *     responses:
  *       200:
@@ -22,9 +30,10 @@ router.get('/', userController.getAllUsers);
 
 /**
  * @swagger
- * /{id}:
+ * /users/{id}:
  *   get:
  *     summary: Retrieve a single user by ID
+ *     tags: [Users]
  *     description: Retrieve a user by their ID.
  *     parameters:
  *       - in: path
@@ -47,9 +56,10 @@ router.get('/:id', userController.getUserById);
 
 /**
  * @swagger
- * /:
+ * /users:
  *   post:
  *     summary: Create a new user
+ *     tags: [Users]
  *     description: Create a new user in the database.
  *     requestBody:
  *       required: true
@@ -71,9 +81,10 @@ router.post('/', userController.createUser);
 
 /**
  * @swagger
- * /{id}:
+ * /users/{id}:
  *   put:
  *     summary: Update a user
+ *     tags: [Users]
  *     description: Update an existing user in the database.
  *     parameters:
  *       - in: path
@@ -104,9 +115,10 @@ router.put('/:id', userController.updateUser);
 
 /**
  * @swagger
- * /{id}:
+ * /users/{id}:
  *   delete:
  *     summary: Delete a user
+ *     tags: [Users]
  *     description: Delete a user by their ID.
  *     parameters:
  *       - in: path
@@ -125,9 +137,10 @@ router.delete('/:id', userController.deleteUser);
 
 /**
  * @swagger
- * /login:
+ * /users/login:
  *   post:
  *     summary: Login a user
+ *     tags: [Users]
  *     description: Authenticate a user and return a token.
  *     requestBody:
  *       required: true
@@ -157,9 +170,10 @@ router.post('/login', userController.loginUser);
 
 /**
  * @swagger
- * /protected:
+ * /users/protected:
  *   get:
  *     summary: Protected route
+ *     tags: [Users]
  *     description: A protected route that requires authentication.
  *     security:
  *       - bearerAuth: []
