@@ -48,21 +48,6 @@ const removeFromCart = async (req, res) => {
   }
 };
 
-// Create a new shopping cart
-const createCart = async (req, res) => {
-  const cart = new ShoppingCart({
-    userId: req.body.userId,
-    items: req.body.items
-  });
-
-  try {
-    const newCart = await cart.save();
-    res.status(201).json(newCart);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
 // Update items in the shopping cart
 const updateCart = async (req, res) => {
   try {
@@ -95,7 +80,6 @@ const getCartByUserId = async (req, res) => {
 module.exports = {
   addToCart,
   removeFromCart,
-  createCart,
   updateCart,
   getCartByUserId
 };

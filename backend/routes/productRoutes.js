@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const fs = require('fs');
 const productController = require('../controllers/productController');
+const userController = require('../controllers/userController');
 
 /**
  * @swagger
@@ -102,8 +103,10 @@ router.get('/type/:type', productController.getProductsByType);
  *               $ref: '#/components/schemas/Product'
  *       400:
  *         description: Bad request
+ *     security:
+ *       - bearerAuth: []
  */
-router.post('/', productController.createProduct);
+router.post('/', userController.adminRoute, productController.createProduct);
 
 /**
  * @swagger
@@ -133,8 +136,10 @@ router.post('/', productController.createProduct);
  *               $ref: '#/components/schemas/Product'
  *       404:
  *         description: Product not found
+ *     security:
+ *       - bearerAuth: []
  */
-router.put('/:id', productController.updateProduct);
+router.put('/:id', userController.adminRoute, productController.updateProduct);
 
 /**
  * @swagger
@@ -156,8 +161,10 @@ router.put('/:id', productController.updateProduct);
  *         description: Product not found
  *       500:
  *         description: Error deleting product
+ *     security:
+ *       - bearerAuth: []
  */
-router.delete('/:id', productController.deleteProduct);
+router.delete('/:id', userController.adminRoute, productController.deleteProduct);
 
 // Multer configuration
 const storage = multer.diskStorage({

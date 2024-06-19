@@ -110,8 +110,10 @@ router.post('/', userController.createUser);
  *         description: User not found
  *       400:
  *         description: Bad request
+ *     security:
+ *       - bearerAuth: []
  */
-router.put('/:id', userController.updateUser);
+router.put('/:id', userController.protectRoute, userController.updateUser);
 
 /**
  * @swagger
@@ -132,8 +134,10 @@ router.put('/:id', userController.updateUser);
  *         description: User deleted
  *       404:
  *         description: User not found
+ *     security:
+ *       - bearerAuth: []
  */
-router.delete('/:id', userController.deleteUser);
+router.delete('/:id', userController.adminRoute, userController.deleteUser);
 
 /**
  * @swagger
@@ -167,24 +171,5 @@ router.delete('/:id', userController.deleteUser);
  *         description: Invalid username or password
  */
 router.post('/login', userController.loginUser);
-
-/**
- * @swagger
- * /users/protected:
- *   get:
- *     summary: Protected route
- *     tags: [Users]
- *     description: A protected route that requires authentication.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Access granted to protected route
- *       401:
- *         description: Unauthorized
- */
-router.get('/protected', userController.protectRoute, (req, res) => {
-  res.status(200).json({ message: 'This is a protected route' });
-});
 
 module.exports = router;

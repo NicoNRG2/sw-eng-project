@@ -134,6 +134,16 @@ const protectRoute = (req, res, next) => {
   }
 };
 
+// Function to protect routes for admin only
+const adminRoute = (req, res, next) => {
+  protectRoute(req, res, () => {
+    if (req.user.username !== 'admin') {
+      return res.status(403).json({ message: 'Access denied, admin only' });
+    }
+    next();
+  });
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -141,5 +151,6 @@ module.exports = {
   updateUser,
   deleteUser,
   loginUser,
-  protectRoute
+  protectRoute,
+  adminRoute
 };

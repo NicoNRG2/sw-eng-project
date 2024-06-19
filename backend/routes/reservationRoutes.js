@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const reservationsController = require('../controllers/reservationController');
+const userController = require('../controllers/userController');
 
 /**
  * @swagger
@@ -24,8 +25,10 @@ const reservationsController = require('../controllers/reservationController');
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Reservation'
+ *     security:
+ *       - bearerAuth: []
  */
-router.get('/', reservationsController.getAllReservations);
+router.get('/', userController.adminRoute, reservationsController.getAllReservations);
 
 /**
  * @swagger
@@ -51,8 +54,10 @@ router.get('/', reservationsController.getAllReservations);
  *                 $ref: '#/components/schemas/Reservation'
  *       500:
  *         description: Error retrieving reservations for user
+ *     security:
+ *       - bearerAuth: []
  */
-router.get('/user/:userId', reservationsController.getReservationsByUser);
+router.get('/user/:userId', userController.protectRoute, reservationsController.getReservationsByUser);
 
 /**
  * @swagger
@@ -75,8 +80,10 @@ router.get('/user/:userId', reservationsController.getReservationsByUser);
  *               $ref: '#/components/schemas/Reservation'
  *       500:
  *         description: Error creating reservation
+ *     security:
+ *       - bearerAuth: []
  */
-router.post('/', reservationsController.createReservation);
+router.post('/', userController.protectRoute, reservationsController.createReservation);
 
 /**
  * @swagger
@@ -108,8 +115,10 @@ router.post('/', reservationsController.createReservation);
  *         description: Reservation not found
  *       500:
  *         description: Error updating reservation
+ *     security:
+ *       - bearerAuth: []
  */
-router.put('/:id', reservationsController.updateReservation);
+router.put('/:id', userController.protectRoute, reservationsController.updateReservation);
 
 /**
  * @swagger
@@ -131,7 +140,9 @@ router.put('/:id', reservationsController.updateReservation);
  *         description: Reservation not found
  *       500:
  *         description: Error deleting reservation
+ *     security:
+ *       - bearerAuth: []
  */
-router.delete('/:id', reservationsController.deleteReservation);
+router.delete('/:id', userController.protectRoute, reservationsController.deleteReservation);
 
 module.exports = router;

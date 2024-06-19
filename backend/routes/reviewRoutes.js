@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const reviewController = require('../controllers/reviewController');
+const userController = require('../controllers/userController');
 
 /**
  * @swagger
@@ -137,8 +138,10 @@ router.get('/average/:productId', reviewController.getProductRatingAverage);
  *               $ref: '#/components/schemas/Review'
  *       400:
  *         description: Bad request
+ *     security:
+ *       - bearerAuth: []
  */
-router.post('/', reviewController.createReview);
+router.post('/', userController.protectRoute, reviewController.createReview);
 
 /**
  * @swagger
@@ -171,8 +174,10 @@ router.post('/', reviewController.createReview);
  *         description: Review not found
  *       400:
  *         description: Bad request
+ *     security:
+ *       - bearerAuth: []
  */
-router.put('/:id', reviewController.updateReview);
+router.put('/:id', userController.protectRoute, reviewController.updateReview);
 
 /**
  * @swagger
@@ -193,7 +198,9 @@ router.put('/:id', reviewController.updateReview);
  *         description: Review deleted
  *       404:
  *         description: Review not found
+ *     security:
+ *       - bearerAuth: []
  */
-router.delete('/:id', reviewController.deleteReview);
+router.delete('/:id', userController.protectRoute, reviewController.deleteReview);
 
 module.exports = router;

@@ -200,7 +200,7 @@ const options = {
       },
       securitySchemes: {
         bearerAuth: {
-          type: 'https',
+          type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
         },

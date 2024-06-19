@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const shoppingCartController = require('../controllers/shoppingCartController');
+const userController = require('../controllers/userController');
 
 /**
  * @swagger
@@ -38,8 +39,10 @@ const shoppingCartController = require('../controllers/shoppingCartController');
  *               $ref: '#/components/schemas/ShoppingCart'
  *       400:
  *         description: Bad request
+ *     security:
+ *       - bearerAuth: []
  */
-router.post('/add', shoppingCartController.addToCart);
+router.post('/add', userController.protectRoute, shoppingCartController.addToCart);
 
 /**
  * @swagger
@@ -70,33 +73,10 @@ router.post('/add', shoppingCartController.addToCart);
  *         description: Cart not found
  *       400:
  *         description: Bad request
+ *     security:
+ *       - bearerAuth: []
  */
-router.post('/remove', shoppingCartController.removeFromCart);
-
-/**
- * @swagger
- * /cart:
- *   post:
- *     summary: Create a new shopping cart
- *     tags: [ShoppingCart]
- *     description: Create a new shopping cart for a user.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ShoppingCart'
- *     responses:
- *       201:
- *         description: The created shopping cart
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ShoppingCart'
- *       400:
- *         description: Bad request
- */
-router.post('/', shoppingCartController.createCart);
+router.post('/remove', userController.protectRoute, shoppingCartController.removeFromCart);
 
 /**
  * @swagger
@@ -129,8 +109,10 @@ router.post('/', shoppingCartController.createCart);
  *         description: Cart not found
  *       400:
  *         description: Bad request
+ *     security:
+ *       - bearerAuth: []
  */
-router.put('/:id', shoppingCartController.updateCart);
+router.put('/:id', userController.protectRoute, shoppingCartController.updateCart);
 
 /**
  * @swagger
