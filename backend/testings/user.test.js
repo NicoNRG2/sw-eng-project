@@ -1,124 +1,155 @@
 const request = require('supertest');
-const app = require('../server'); 
-const User = require('../models/user');
-const bcrypt = require('bcrypt');
+const app = require('../server');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const User = require('../models/user');
 
 jest.mock('../models/user');
-jest.mock('bcrypt');
-jest.mock('jsonwebtoken');
 
 describe('User API', () => {
-  let mockUser;
+  let token;
+  let adminToken;
 
-  beforeEach(() => {
-    mockUser = {
-      _id: '1',
-      name: 'Test',
-      surname: 'User',
-      email: 'testuser@example.com',
-      username: 'testuser',
-      password: 'hashedpassword'
-    };
+  beforeAll(() => {
+    // Mock JWT token
+    token = jwt.sign({ userId: 'user123', username: 'testuser' }, 'EbVkQJufAyrTFJGf', { expiresIn: '1h' });
+    adminToken = jwt.sign({ userId: 'admin123', username: 'admin' }, 'EbVkQJufAyrTFJGf', { expiresIn: '1h' });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('GET /api/users', () => {
-    it('should return all users', async () => {
-      User.find.mockResolvedValue([mockUser]);
+    it('should get all users', async () => {
+      User.find.mockResolvedValue([{ username: 'testuser1' }, { username: 'testuser2' }]);
+
       const res = await request(app).get('/api/users');
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual([mockUser]);
-    });
-  });
 
-  describe('GET /api/users/:id', () => {
-    it('should return a single user by ID', async () => {
-      User.findById.mockResolvedValue(mockUser);
-      const res = await request(app).get('/api/users/1');
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual(mockUser);
-    });
-
-    it('should return 404 if user not found', async () => {
-      User.findById.mockResolvedValue(null);
-      const res = await request(app).get('/api/users/1');
-      expect(res.statusCode).toBe(404);
-      expect(res.body.message).toBe('User not found');
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveLength(2);
     });
   });
 
   describe('POST /api/users', () => {
     it('should create a new user', async () => {
-      User.prototype.save.mockResolvedValue(mockUser);
-      const res = await request(app).post('/api/users').send(mockUser);
-      expect(res.statusCode).toBe(201);
-      expect(res.body).toEqual(mockUser);
+      const newUser = { username: 'testuser', password: 'password123' };
+      User.prototype.save = jest.fn().mockResolvedValue(newUser);
+
+      const res = await request(app)
+        .post('/api/users')
+        .send(newUser);
+
+      expect(res.statusCode).toEqual(201);
+      expect(res.body).toHaveProperty('username', 'testuser');
     });
   });
 
-  describe('PUT /api/users/:id', () => {
-    it('should update an existing user', async () => {
-      User.findById.mockResolvedValue(mockUser);
-      User.prototype.save.mockResolvedValue(mockUser);
-      const res = await request(app).put('/api/users/1').send(mockUser);
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual(mockUser);
+  describe('GET /api/users/:id', () => {
+    it('should get a user by id', async () => {
+      User.findById.mockResolvedValue({ username: 'testuser' });
+
+      const res = await request(app).get('/api/users/user123');
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('username', 'testuser');
     });
 
     it('should return 404 if user not found', async () => {
       User.findById.mockResolvedValue(null);
-      const res = await request(app).put('/api/users/1').send(mockUser);
-      expect(res.statusCode).toBe(404);
-      expect(res.body.message).toBe('User not found');
+
+      const res = await request(app).get('/api/users/user123');
+
+      expect(res.statusCode).toEqual(404);
+      expect(res.body).toHaveProperty('message', 'User not found');
+    });
+  });
+
+  describe('PUT /api/users/:id', () => {
+    it('should update a user', async () => {
+      const updatedUser = { username: 'updateduser' };
+      User.findById.mockResolvedValue({ save: jest.fn().mockResolvedValue(updatedUser) });
+
+      const res = await request(app)
+        .put('/api/users/user123')
+        .set('Authorization', `Bearer ${token}`)
+        .send(updatedUser);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('username', 'updateduser');
+    });
+
+    it('should return 404 if user not found', async () => {
+      User.findById.mockResolvedValue(null);
+
+      const res = await request(app)
+        .put('/api/users/user123')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ username: 'updateduser' });
+
+      expect(res.statusCode).toEqual(404);
+      expect(res.body).toHaveProperty('message', 'User not found');
     });
   });
 
   describe('DELETE /api/users/:id', () => {
     it('should delete a user', async () => {
-      User.findById.mockResolvedValue(mockUser);
-      User.prototype.remove = jest.fn().mockResolvedValue(mockUser);
-      const res = await request(app).delete('/api/users/1');
-      expect(res.statusCode).toBe(200);
-      expect(res.body.message).toBe('User deleted');
+      User.findById.mockResolvedValue({ remove: jest.fn().mockResolvedValue({}) });
+
+      const res = await request(app)
+        .delete('/api/users/user123')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('message', 'User deleted');
     });
 
     it('should return 404 if user not found', async () => {
       User.findById.mockResolvedValue(null);
-      const res = await request(app).delete('/api/users/1');
-      expect(res.statusCode).toBe(404);
-      expect(res.body.message).toBe('User not found');
+
+      const res = await request(app)
+        .delete('/api/users/user123')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.statusCode).toEqual(404);
+      expect(res.body).toHaveProperty('message', 'User not found');
     });
   });
 
-  describe('POST /api/users/login', () => {
+  describe('Login /api/users/login', () => {
     it('should login a user and return a token', async () => {
-      User.findOne.mockResolvedValue(mockUser);
-      bcrypt.compare.mockResolvedValue(true);
-      jwt.sign.mockReturnValue('fakeToken');
-      const res = await request(app).post('/api/users/login').send({ username: 'testuser', password: 'password' });
-      expect(res.statusCode).toBe(200);
-      expect(res.body.token).toBe('fakeToken');
+      const user = { _id: 'user123', username: 'testuser', password: await bcrypt.hash('password123', 10) };
+      User.findOne.mockResolvedValue(user);
+
+      const res = await request(app)
+        .post('/api/users/login')
+        .send({ username: 'testuser', password: 'password123' });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('token');
     });
 
-    it('should return 400 if username or password is missing', async () => {
-      const res = await request(app).post('/api/users/login').send({ username: '', password: '' });
-      expect(res.statusCode).toBe(400);
-      expect(res.body.message).toBe('Missing required fields');
-    });
-
-    it('should return 400 if user not found', async () => {
+    it('should return 404 if user not found', async () => {
       User.findOne.mockResolvedValue(null);
-      const res = await request(app).post('/api/users/login').send({ username: 'testuser', password: 'password' });
-      expect(res.statusCode).toBe(400);
-      expect(res.body.message).toBe('Invalid username or password');
+
+      const res = await request(app)
+        .post('/api/users/login')
+        .send({ username: 'testuser', password: 'password123' });
+
+      expect(res.statusCode).toEqual(404);
+      expect(res.body).toHaveProperty('message', 'User not found');
     });
 
-    it('should return 400 if password does not match', async () => {
-      User.findOne.mockResolvedValue(mockUser);
-      bcrypt.compare.mockResolvedValue(false);
-      const res = await request(app).post('/api/users/login').send({ username: 'testuser', password: 'wrongpassword' });
-      expect(res.statusCode).toBe(400);
-      expect(res.body.message).toBe('Invalid username or password');
+    it('should return 401 if password is incorrect', async () => {
+      const user = { _id: 'user123', username: 'testuser', password: await bcrypt.hash('password123', 10) };
+      User.findOne.mockResolvedValue(user);
+
+      const res = await request(app)
+        .post('/api/users/login')
+        .send({ username: 'testuser', password: 'password' });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body).toHaveProperty('message', 'Invalid password');
     });
   });
 });

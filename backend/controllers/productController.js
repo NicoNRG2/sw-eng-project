@@ -124,18 +124,20 @@ const deleteProduct = async (req, res) => {
     }
 
     // Delete all images associated with the product
-    product.images.forEach(image => {
-      const imagePath = path.join(__dirname, '..', 'uploads', image);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-        console.log(`Image file ${imagePath} deleted successfully`);
-      }
-    });
+    if(product.images) {
+      product.images.forEach(image => {
+        const imagePath = path.join(__dirname, '..', 'uploads', image);
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+          console.log(`Image file ${imagePath} deleted successfully`);
+        }
+      });
+    }
 
     // Delete the product from the database
     await Product.deleteOne({ _id: productId });
     console.log(`Product with ID: ${productId} deleted successfully`);
-    res.json({ message: 'Product deleted successfully' });
+    res.json({ message: 'Product deleted' });
   } catch (error) {
     console.error('Error deleting product:', error);
     res.status(500).json({ message: error.message });

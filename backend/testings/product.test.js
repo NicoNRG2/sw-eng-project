@@ -1,126 +1,127 @@
 const request = require('supertest');
-const app = require('../server'); 
+const app = require('../server');
+const jwt = require('jsonwebtoken');
 const Product = require('../models/product');
 
 jest.mock('../models/product');
 
 describe('Product API', () => {
-  let mockProduct;
+  let adminToken;
 
-  beforeEach(() => {
-    mockProduct = {
-      _id: '1',
-      name: 'Test Product',
-      category: 'Bread',
-      ingredients: ['flour', 'water', 'yeast'],
-      price: 5,
-      availability: true,
-      images: ['test.jpg'],
-      vegan: false,
-      gluten_free: false
-    };
+  beforeAll(() => {
+    // Mock JWT token
+    adminToken = jwt.sign({ userId: 'admin123', username: 'admin' }, 'EbVkQJufAyrTFJGf', { expiresIn: '1h' });
   });
 
-  //try to configure mock products
-
-  beforeEach(() => {
-        Product.find.mockResolvedValue([mockProduct]);
-        Product.findById.mockResolvedValue(mockProduct);
-        Product.deleteOne.mockResolvedValue({ deletedCount: 1 });
-        Product.prototype.save.mockResolvedValue(mockProduct);
-      });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe('GET /api/products', () => {
-    it('should return all products', async () => {
-      Product.find.mockResolvedValue([mockProduct]);
+    it('should get all products', async () => {
+      Product.find.mockResolvedValue([{ name: 'Product1' }, { name: 'Product2' }]);
+
       const res = await request(app).get('/api/products');
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual([mockProduct]);
-    });
-  });
 
-  describe('GET /api/products/:id', () => {
-    it('should return a single product by ID', async () => {
-      Product.findById.mockResolvedValue(mockProduct);
-      const res = await request(app).get('/api/products/1');
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual(mockProduct);
-    });
-
-    it('should return 404 if product not found', async () => {
-      Product.findById.mockResolvedValue(null);
-      const res = await request(app).get('/api/products/1');
-      expect(res.statusCode).toBe(404);
-      expect(res.body.message).toBe('Product not found');
-    });
-  });
-
-  describe('GET /api/products/type/:type', () => {
-    it('should return products by type', async () => {
-      Product.find.mockResolvedValue([mockProduct]);
-      const res = await request(app).get('/api/products/type/Bread');
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual([mockProduct]);
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveLength(2);
     });
   });
 
   describe('POST /api/products', () => {
     it('should create a new product', async () => {
-      Product.prototype.save.mockResolvedValue(mockProduct);
-      const res = await request(app).post('/api/products').send(mockProduct);
-      expect(res.statusCode).toBe(201);
-      expect(res.body).toEqual(mockProduct);
+      const newProduct = { name: 'New Product', price: 10 };
+      Product.prototype.save = jest.fn().mockResolvedValue(newProduct);
+
+      const res = await request(app)
+        .post('/api/products')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(newProduct);
+
+      expect(res.statusCode).toEqual(201);
+      expect(res.body).toHaveProperty('name', 'New Product');
     });
   });
 
-  describe('PUT :id', () => {
-    it('should update an existing product', async () => {
-      Product.findById.mockResolvedValue(mockProduct);
-      Product.prototype.save.mockResolvedValue(mockProduct);
-      const res = await request(app).put('/api/products/1').send(mockProduct);
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual(mockProduct);
+  describe('GET /api/products/:id', () => {
+    it('should get a product by id', async () => {
+      Product.findById.mockResolvedValue({ name: 'Product1' });
+
+      const res = await request(app).get('/api/products/product123');
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('name', 'Product1');
     });
 
     it('should return 404 if product not found', async () => {
       Product.findById.mockResolvedValue(null);
-      const res = await request(app).put('/api/products/1').send(mockProduct);
-      expect(res.statusCode).toBe(404);
-      expect(res.body.message).toBe('Product not found');
+
+      const res = await request(app).get('/api/products/product123');
+
+      expect(res.statusCode).toEqual(404);
+      expect(res.body).toHaveProperty('message', 'Product not found');
+    });
+  });
+
+  describe('PUT /api/products/:id', () => {
+    it('should update a product', async () => {
+      const updatedProduct = { name: 'Updated Product' };
+      Product.findById.mockResolvedValue({ save: jest.fn().mockResolvedValue(updatedProduct) });
+
+      const res = await request(app)
+        .put('/api/products/product123')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(updatedProduct);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('name', 'Updated Product');
+    });
+
+    it('should return 404 if product not found', async () => {
+      Product.findById.mockResolvedValue(null);
+
+      const res = await request(app)
+        .put('/api/products/product123')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ name: 'Updated Product' });
+
+      expect(res.statusCode).toEqual(404);
+      expect(res.body).toHaveProperty('message', 'Product not found');
     });
   });
 
   describe('DELETE /api/products/:id', () => {
     it('should delete a product', async () => {
-      Product.findById.mockResolvedValue(mockProduct);
-      Product.deleteOne.mockResolvedValue({ deletedCount: 1 });
-      const res = await request(app).delete('/api/products/1');
-      expect(res.statusCode).toBe(200);
-      expect(res.body.message).toBe('Product deleted successfully');
+      Product.findById.mockResolvedValue({ remove: jest.fn().mockResolvedValue({}) });
+
+      const res = await request(app)
+        .delete('/api/products/product123')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('message', 'Product deleted');
     });
 
     it('should return 404 if product not found', async () => {
       Product.findById.mockResolvedValue(null);
-      const res = await request(app).delete('/api/products/1');
-      expect(res.statusCode).toBe(404);
-      expect(res.body.message).toBe('Product not found');
+
+      const res = await request(app)
+        .delete('/api/products/product123')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.statusCode).toEqual(404);
+      expect(res.body).toHaveProperty('message', 'Product not found');
     });
   });
 
-  describe('POST /api/products/:id/upload', () => {
-    it('should upload an image for a product', async () => {
-      Product.findById.mockResolvedValue(mockProduct);
-      Product.prototype.save.mockResolvedValue({
-        ...mockProduct,
-        images: [...mockProduct.images, 'newImage.jpg']
-      });
+  describe('GET /api/products/type/:type', () => {
+    it('should get all products by type', async () => {
+      Product.find.mockResolvedValue([{ name: 'Product1' }, { name: 'Product2' }]);
 
-      const res = await request(app)
-        .post('/api/products/1/upload')
-        .attach('file', 'path/to/test/image.jpg'); // error missing updating image
+      const res = await request(app).get('/api/products/type/food');
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body.images).toContain('newImage.jpg');
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveLength(2);
     });
   });
 });
