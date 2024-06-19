@@ -240,7 +240,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axiosOnRender, { BASE_URL } from '@/../axiosConfig';
 import { jwtDecode } from 'jwt-decode';
 
 export default {
@@ -288,27 +288,25 @@ export default {
   methods: {
     async addToCart(productId, quantity) {
       try {
-        const response = await fetch('https://localhost:3000/api/shopping-cart/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ userId: this.userId, productId, quantity })
+        const response = await axiosOnRender.post('/api/shopping-cart/add', {
+          userId: this.userId,
+          productId,
+          quantity
         });
-        if (response.ok) {
+        
+        if (response.status === 200) {
           console.log('Product added to cart');
-          // update the UI to reflect the change?
+          // Update the UI to reflect the change
         } else {
-          const error = await response.json();
-          console.error('Failed to add product to cart:', error.message);
+          console.error('Failed to add product to cart:', response.data.message);
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error:', error.response ? error.response.data.message : error.message);
       }
     },
     async addProduct() {
       try {
-        const response = await axios.post('https://localhost:3000/api/products', this.newProduct);
+        const response = await axiosOnRender.post('/api/products', this.newProduct);
         this.showAddProductDialog = false;
         this.resetForm();
         this.fetchProducts();
@@ -341,7 +339,7 @@ export default {
         formData.append('image', file);
 
         try {
-          const response = await axios.post(`https://localhost:3000/api/products/${product._id}/upload-image`, formData, {
+          const response = await axiosOnRender.post(`/api/products/${product._id}/upload-image`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             }
@@ -355,13 +353,13 @@ export default {
     },
     getImage(product) {
       return product.images && product.images.length > 0
-        ? `https://localhost:3000/uploads/${product.images[0]}`
+        ? `${BASE_URL}/uploads/${product.images[0]}`
         : 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp';
     },
     async fetchProducts() {
       const filter = this.$route.query.type || '';
       try {
-        const response = await axios.get(`https://localhost:3000/api/products/type/${filter}`);
+        const response = await axiosOnRender.get(`/api/products/type/${filter}`);
         this.products = response.data;
         for (let product of this.products) {
           await this.fetchProductRating(product);
@@ -373,7 +371,7 @@ export default {
     async fetchProductRating(product) {
       try {
         const _id = product._id;
-        const response = await axios.get(`https://localhost:3000/api/reviews/average/${_id}`);
+        const response = await axiosOnRender.get(`/api/reviews/average/${_id}`);
         product.ratingData = response.data;
       } catch (error) {
         console.error(`Error fetching rating for product ${_id}:`, error);
@@ -385,7 +383,7 @@ export default {
       if (this.isFormValid) {
         try {
           console.log(this.review.comment);
-          const response = await axios.post('https://localhost:3000/api/reviews', {
+          const response = await axiosOnRender.post('/api/reviews', {
             rating: this.review.rating,
             comment: this.review.text,
             product: productId,
@@ -405,7 +403,7 @@ export default {
     async updateName(productId, newName) {
       console.log('updateName called with:', productId, newName); // Debug
       try {
-        const response = await axios.put(`https://localhost:3000/api/products/${productId}`, {
+        const response = await axiosOnRender.put(`/api/products/${productId}`, {
           name: newName
         }, {
           headers: {
@@ -425,7 +423,7 @@ export default {
     async updatePrice(productId, newPrice) {
       console.log('updatePrice called with:', productId, newPrice); // Debug
       try {
-        const response = await axios.put(`https://localhost:3000/api/products/${productId}`, {
+        const response = await axiosOnRender.put(`/api/products/${productId}`, {
           price: newPrice
         }, {
           headers: {
@@ -444,7 +442,7 @@ export default {
     },
     async updateAvailability(productId, newQuantity) {
       try {
-        const response = await axios.put(`https://localhost:3000/api/products/${productId}`, {
+        const response = await axiosOnRender.put(`/api/products/${productId}`, {
           availability: newQuantity
         }, {
           headers: {
@@ -465,7 +463,7 @@ export default {
       console.log('updateIngredients called with:', productId, ingredients); // Debug
       const ingredientsArray = ingredients.split(',').map(ingredient => ingredient.trim());
       try {
-        const response = await axios.put(`https://localhost:3000/api/products/${productId}`, {
+        const response = await axiosOnRender.put(`/api/products/${productId}`, {
           ingredients: ingredientsArray
         }, {
           headers: {
@@ -484,7 +482,7 @@ export default {
     },
     async deleteProduct(productId) { 
       try { 
-        const response = await axios.delete(`https://localhost:3000/api/products/${productId}`); 
+        const response = await axiosOnRender.delete(`/api/products/${productId}`); 
         console.log('Product deleted successfully: ', response.data); 
         this.fetchProducts(); // Refresh the product list 
       } catch (error) { 

@@ -131,7 +131,7 @@
   </template>
   
   <script>
-  import axios from 'axios';  
+  import axiosOnRender, { BASE_URL } from '@/../axiosConfig';  
   import { jwtDecode } from 'jwt-decode';
 
     export default {
@@ -171,7 +171,7 @@
             }
             return item;
           });
-          axios.put(`https://localhost:3000/api/shopping-cart/${this.shoppingCart._id}`, { items: updatedItems })
+          axiosOnRender.put(`/api/shopping-cart/${this.shoppingCart._id}`, { items: updatedItems })
             .then(response => {
               this.shoppingCart = response.data;
             })
@@ -185,13 +185,12 @@
         async createReservation() {
           if (this.$refs.form.validate()) {
             try {
-              const response = await axios.post(`https://localhost:3000/api/reservations`, {
+              const response = await axiosOnRender.post(`/api/reservations`, {
                 pickupTime: this.pickupTime,
                 userId: this.userId,
                 items: this.shoppingCart.items,
               });
               this.dialog = false;
-              // empty the shopping cart ----------------------------todo---------------------
               this.$router.push('/orders');
             } catch (error) {
               console.error('Error creating reservation:', error);
@@ -200,7 +199,7 @@
         },
         async getShoppingCart(userId){
           try {
-              const response = await axios.get(`https://localhost:3000/api/shopping-cart/user/${userId}`);
+              const response = await axiosOnRender.get(`/api/shopping-cart/user/${userId}`);
               const shoppingCart = response.data;
               
               this.shoppingCart = shoppingCart;
@@ -211,7 +210,7 @@
         },
         async removeItem(item) {
           try {
-            await axios.post(`https://localhost:3000/api/shopping-cart/remove`, { userId: this.userId, productId: item.productId._id });
+            await axiosOnRender.post(`/api/shopping-cart/remove`, { userId: this.userId, productId: item.productId._id });
             this.getShoppingCart(this.userId);
           } catch (error) {
             console.error('Error removing item from cart:', error);
@@ -219,7 +218,7 @@
         },
         getImage(product) {
           return product.images && product.images.length > 0
-            ? `https://localhost:3000/uploads/${product.images[0]}`
+            ? `{ BASE_URL }/uploads/${product.images[0]}`
             : 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp';
     },
       },

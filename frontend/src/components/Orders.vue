@@ -54,7 +54,7 @@
   </template>
   
   <script>
-  import axios from 'axios';
+  import axiosOnRender from '@/../axiosConfig';
   import { jwtDecode } from 'jwt-decode';
   
   export default {
@@ -100,9 +100,9 @@
     methods: {
       fetchOrders() {
         const url = this.isAdmin
-          ? 'https://localhost:3000/api/reservations'
-          : `https://localhost:3000/api/reservations/user/${this.userId}`;
-        axios
+          ? '/api/reservations'
+          : `/api/reservations/user/${this.userId}`;
+        axiosOnRender
           .get(url)
           .then((response) => {
             this.reservations = response.data;
@@ -113,7 +113,7 @@
       },
       async deleteReservation(id) {
         try {
-          await axios.delete(`https://localhost:3000/api/reservations/${id}`);
+          await axiosOnRender.delete(`/api/reservations/${id}`);
           this.fetchOrders();
         } catch (error) {
           console.error('Error deleting reservation:', error);
@@ -121,7 +121,7 @@
       },
       async updateStatus(reservation) {
         try {
-          await axios.put(`https://localhost:3000/api/reservations/${reservation._id}`, {
+          await axiosOnRender.put(`/api/reservations/${reservation._id}`, {
             status: reservation.status,
           });
           console.log('Reservation status updated');
