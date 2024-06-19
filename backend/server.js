@@ -10,27 +10,8 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const shoppingCartRoutes = require('./routes/shoppingCartRoutes');
 const userRoutes = require('./routes/userRoutes');
 
-const swaggerUI = require('swagger-ui-express');
-const swaggerJsDoc = require('swagger-jsdoc');
-
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Bakery4You API',
-      version: '1.0.0',
-      description: 'A simple API for a bakery website',
-    },
-    servers: [
-      {
-        url: 'https://localhost:3000',
-      },
-    ],
-  },
-  apis: ['./routes/userRoutes.js'],
-};
-
-const swaggerSpec = swaggerJsDoc(swaggerOptions);
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swaggerConfig');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -51,7 +32,7 @@ app.use((req, res, next) => {
 });
 
 // Swagger UI
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Use routes for different classes
 app.use('/api/products', productRoutes);
