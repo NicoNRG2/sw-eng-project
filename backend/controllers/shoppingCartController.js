@@ -50,8 +50,9 @@ const removeFromCart = async (req, res) => {
 
 // Update items in the shopping cart
 const updateCart = async (req, res) => {
+  const cartId = req.params.id;
   try {
-    const cart = await ShoppingCart.findById(req.params.id);
+    const cart = await ShoppingCart.findById(cartId);
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
@@ -60,6 +61,9 @@ const updateCart = async (req, res) => {
     await cart.save();
     res.json(cart);
   } catch (error) {
+    if (error.kind === 'ObjectId' || error.name === 'CastError') {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
     res.status(400).json({ message: error.message });
   }
 };

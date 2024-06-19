@@ -12,7 +12,7 @@ const userController = require('../controllers/userController');
 
 /**
  * @swagger
- * /cart/add:
+ * /shopping-cart/add:
  *   post:
  *     summary: Add items to the shopping cart
  *     tags: [ShoppingCart]
@@ -46,7 +46,7 @@ router.post('/add', userController.protectRoute, shoppingCartController.addToCar
 
 /**
  * @swagger
- * /cart/remove:
+ * /shopping-cart/remove:
  *   post:
  *     summary: Remove items from the shopping cart
  *     tags: [ShoppingCart]
@@ -80,7 +80,7 @@ router.post('/remove', userController.protectRoute, shoppingCartController.remov
 
 /**
  * @swagger
- * /cart/{id}:
+ * /shopping-cart/{id}:
  *   put:
  *     summary: Update items in the shopping cart
  *     tags: [ShoppingCart]
@@ -116,7 +116,7 @@ router.put('/:id', userController.protectRoute, shoppingCartController.updateCar
 
 /**
  * @swagger
- * /cart/user/{userId}:
+ * /shopping-cart/user/{userId}:
  *   get:
  *     summary: Get a shopping cart by user ID
  *     tags: [ShoppingCart]
