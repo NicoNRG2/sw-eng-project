@@ -158,7 +158,7 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-dialog v-model="showReviewsDialog" max-width="600">
+          <v-dialog v-model="showReviewsDialog" max-width="600" @click:outside="resetReviews">
             <template v-slot:activator="{ props: activatorProps }">
               <v-btn
                 class="rounded-xl"
@@ -167,7 +167,7 @@
                 block
                 border
                 v-bind="activatorProps"
-                @click="fetchReviews(product._id)"
+                @click="fetchReviews(product._id); resetReviews()"
               >
               </v-btn>
             </template>
@@ -336,6 +336,9 @@ export default {
     }
   },
   methods: {
+    resetReviews() {
+      this.reviews = [];
+    },
     async addToCart(productId, quantity) {
       try {
         const response = await fetch('https://localhost:3000/api/shopping-cart/add', {
@@ -465,15 +468,16 @@ export default {
       }
     },
     async fetchReviews(productId) {
-      try {
-        const response = await axios.get(`https://localhost:3000/api/reviews/product/${productId}`);
-        this.reviews = response.data;
-        this.showReviewsDialog = true;
-        console.log(this.reviews);
-      } catch (error) {
-        console.error(`Error fetching rating for product ${_id}:`, error);
-      }
-    },
+    this.resetReviews(); // Resetta le recensioni prima di fare la richiesta
+    try {
+      const response = await axios.get(`https://localhost:3000/api/reviews/product/${productId}`);
+      this.reviews = response.data;
+      this.showReviewsDialog = true;
+      console.log(this.reviews);
+    } catch (error) {
+      console.error(`Error fetching reviews for product ${productId}:`, error);
+    }
+  },
     async updateName(productId, newName) {
       console.log('updateName called with:', productId, newName); // Debug
       try {
