@@ -157,9 +157,10 @@
           </v-col>
         </v-card-text>
 
-        <div v-if="isAdmin || username">
+        <div v-if="!isAdmin && username">
 
-          <!-- show reviewsss--> 
+          <v-divider class="mx-4 mb-1"></v-divider>
+
           <v-card-actions>
             <v-dialog v-model="showReviewsDialog" max-width="600">
               <template v-slot:activator="{ props: activatorProps }">
@@ -170,7 +171,7 @@
                   block
                   border
                   v-bind="activatorProps"
-                  @click="fetchReviews"
+                  @click="fetchReviews(product._id)"
                 >
                 </v-btn>
               </template>
@@ -196,12 +197,6 @@
               </v-card>
             </v-dialog>
           </v-card-actions>
-
-        </div>
-
-        <div v-if="!isAdmin && username">
-
-          <v-divider class="mx-4 mb-1"></v-divider>
 
           <v-col cols="12">
             <v-menu transition="scroll-x-transition">
@@ -299,7 +294,8 @@ export default {
         rating: null,
         text: ''
       },
-      reviews:[],
+      reviews: [],
+      showReviewsDialog: false,
       token: '',
       username: '',
       isAdmin: false,
@@ -466,21 +462,16 @@ export default {
         }
       }
     },
-
-    async fetchReviews() {
-
-        try {
-          const _id = product._id;
-          const response = await axios.get(`https://localhost:3000/api/reviews/${_id}`);
-          product.reviews = response.data;
-          this.showReviewsDialog = true;
-
-        } catch (error) {
-          console.error(`Error fetching rating for product ${_id}:`, error);
-          product.reeviews = null;
-        }
-      },
-
+    async fetchReviews(productId) {
+      try {
+        const response = await axios.get(`https://localhost:3000/api/reviews/product/${productId}`);
+        this.reviews = response.data;
+        this.showReviewsDialog = true;
+        console.log(this.reviews);
+      } catch (error) {
+        console.error(`Error fetching rating for product ${_id}:`, error);
+      }
+    },
     async updateName(productId, newName) {
       console.log('updateName called with:', productId, newName); // Debug
       try {
