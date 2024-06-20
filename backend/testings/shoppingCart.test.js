@@ -12,33 +12,39 @@ describe('Shopping Cart API', () => {
   let productId;
   let cartId;
 
-  beforeAll(async () => {
-    // Connetti a un database di test
+  beforeEach(async () => {
+    // Connect to the test database
     const db = 'mongodb://127.0.0.1/testdb';
     await mongoose.connect(db);
 
-    // Crea un utente normale
+    // Clear the database
+    await User.deleteMany({});
+    await ShoppingCart.deleteMany({});
+    await Product.deleteMany({});
+
+    // Create a user
     const user = new User({ username: 'testuser', email: 'testuser@example.com', password: 'password123' });
     await user.save();
     userId = user._id;
     userToken = jwt.sign({ userId: user._id, username: user.username }, 'EbVkQJufAyrTFJGf', { expiresIn: '1h' });
 
-    // Crea un prodotto
+    // Create a product
     const product = new Product({ name: 'Test Product', category: 'Test', price: 10 });
     await product.save();
     productId = product._id;
 
-    // Crea un carrello
+    // Create a shopping cart
     const cart = new ShoppingCart({ userId, items: [{ productId, quantity: 1 }] });
     await cart.save();
     cartId = cart._id;
   });
 
+  afterEach(async () => {
+    // Clear the database
+    await mongoose.connection.dropDatabase();
+  });
+
   afterAll(async () => {
-    // Pulisci il database di test
-    await User.deleteMany({});
-    await ShoppingCart.deleteMany({});
-    await Product.deleteMany({});
     await mongoose.connection.close();
   });
 

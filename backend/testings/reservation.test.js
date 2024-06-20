@@ -1,6 +1,6 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-const app = require('../server'); // Assicurati che il percorso sia corretto
+const app = require('../server');
 const User = require('../models/user');
 const Reservation = require('../models/reservation');
 const Product = require('../models/product');
@@ -13,34 +13,40 @@ describe('Reservation API', () => {
   let adminId;
   let productId;
 
-  beforeAll(async () => {
-    // Connetti a un database di test
+  beforeEach(async () => {
+    // Connect to the test database
     const db = 'mongodb://127.0.0.1/testdb';
     await mongoose.connect(db);
 
-    // Crea un utente normale
+    // Clear the database
+    await User.deleteMany({});
+    await Reservation.deleteMany({});
+    await Product.deleteMany({});
+
+    // Create a user
     const user = new User({ username: 'testuser', email: 'testuser@example.com', password: 'password123' });
     await user.save();
     userId = user._id;
     userToken = jwt.sign({ userId: user._id, username: user.username }, 'EbVkQJufAyrTFJGf', { expiresIn: '1h' });
 
-    // Crea un utente admin
+    // Create an admin user
     const admin = new User({ username: 'admin', email: 'admin@example.com', password: 'password123' });
     await admin.save();
     adminId = admin._id;
     adminToken = jwt.sign({ userId: admin._id, username: admin.username }, 'EbVkQJufAyrTFJGf', { expiresIn: '1h' });
 
-    // Crea un prodotto
+    // Create a product
     const product = new Product({ name: 'Test Product', category: 'Test', price: 10 });
     await product.save();
     productId = product._id;
   });
 
+  afterEach(async () => {
+    // Clear the database
+    await mongoose.connection.dropDatabase();
+  });
+
   afterAll(async () => {
-    // Pulisci il database di test
-    await User.deleteMany({});
-    await Reservation.deleteMany({});
-    await Product.deleteMany({});
     await mongoose.connection.close();
   });
 
