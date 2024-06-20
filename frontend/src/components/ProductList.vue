@@ -157,6 +157,50 @@
           </v-col>
         </v-card-text>
 
+        <div v-if="isAdmin || username">
+
+          <!-- show reviewsss-->
+          <v-card-actions>
+            <v-dialog v-model="showReviewsDialog" max-width="600">
+              <template v-slot:activator="{ props: activatorProps }">
+                <v-btn
+                  class="rounded-xl"
+                  color="brown lighten-1"
+                  text="Show reviews"
+                  block
+                  border
+                  v-bind="activatorProps"
+                  @click="fetchReviews"
+                >
+                </v-btn>
+              </template>
+      
+              <v-card title="Reviews">
+                <v-card-text>
+                  <v-list>
+                    <v-list-item
+                      v-for="review in reviews"
+                      :key="review.id"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>{{ review.rating }} stars</v-list-item-title>
+                        <v-list-item-subtitle>{{ review.text }}</v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn text="Close" variant="plain" @click="showReviewsDialog = false"></v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-card-actions>
+
+
+        </div>
+
         <div v-if="!isAdmin && username">
 
           <v-divider class="mx-4 mb-1"></v-divider>
@@ -233,6 +277,7 @@
               </v-card>
             </v-dialog>
           </v-card-actions>
+
         </div>
       </v-card>
     </v-col>
@@ -402,6 +447,16 @@ export default {
         }
       }
     },
+
+    fetchReviews() {
+      axios.get('/api/reviews')
+        .then(response => {
+          this.reviews = response.data;
+        })
+        .catch(error => {
+          console.error('There was an error fetching the reviews!', error);
+        });
+
     async updateName(productId, newName) {
       console.log('updateName called with:', productId, newName); // Debug
       try {
