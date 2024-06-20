@@ -418,8 +418,8 @@ export default {
       }
     },
     getImage(product) {
-      return product.images && product.images.length > 0
-        ? `https://localhost:3000/uploads/${product.images[0]}`
+      return product.images
+        ? `https://localhost:3000/uploads/${product.images}`
         : 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp';
     },
     async fetchProducts() {
@@ -468,7 +468,7 @@ export default {
       }
     },
     async fetchReviews(productId) {
-    this.resetReviews(); // Resetta le recensioni prima di fare la richiesta
+    this.resetReviews();
     try {
       const response = await axios.get(`https://localhost:3000/api/reviews/product/${productId}`);
       this.reviews = response.data;

@@ -231,8 +231,8 @@
           }
         },
         getImage(product) {
-          return product.images && product.images.length > 0
-            ? `https://localhost:3000/uploads/${product.images[0]}`
+          return product.images
+            ? `https://localhost:3000/uploads/${product.images}`
             : 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp';
     },
       },
