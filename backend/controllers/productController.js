@@ -123,15 +123,13 @@ const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    // Delete all images associated with the product
+    // Delete image associated with the product
     if(product.images) {
-      product.images.forEach(image => {
-        const imagePath = path.join(__dirname, '..', 'uploads', image);
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
-          console.log(`Image file ${imagePath} deleted successfully`);
-        }
-      });
+      const imagePath = path.join(__dirname, '..', 'uploads', product.images);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+        console.log(`Image file ${imagePath} deleted successfully`);
+      }
     }
 
     // Delete the product from the database
@@ -152,8 +150,15 @@ const uploadProductImage = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    // Add the image path to the product image array
-    product.images.push(req.file.filename);
+    if(product.images) {
+      const imagePath = path.join(__dirname, '..', 'uploads', product.images);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+        console.log(`Image file ${imagePath} deleted successfully`);
+      }
+    }
+
+    product.images = req.file.filename;
 
     const updatedProduct = await product.save();
     res.status(200).json(updatedProduct);
@@ -161,6 +166,7 @@ const uploadProductImage = async (req, res) => {
     res.status(500).json({ message: 'Error uploading image', error });
   }
 };
+
 
 module.exports = {
   getAllProducts,
