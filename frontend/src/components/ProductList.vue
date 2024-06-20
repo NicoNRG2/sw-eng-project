@@ -159,7 +159,7 @@
 
         <div v-if="isAdmin || username">
 
-          <!-- show reviewsss-->
+          <!-- show reviewsss--> 
           <v-card-actions>
             <v-dialog v-model="showReviewsDialog" max-width="600">
               <template v-slot:activator="{ props: activatorProps }">
@@ -180,11 +180,10 @@
                   <v-list>
                     <v-list-item
                       v-for="review in reviews"
-                      :key="review.id"
+                      :key="review._id"
                     >
                       <v-list-item-content>
-                        <v-list-item-title>{{ review.rating }} stars</v-list-item-title>
-                        <v-list-item-subtitle>{{ review.text }}</v-list-item-subtitle>
+                        <v-list-item-title>{{ review.comment }}</v-list-item-title>
                       </v-list-item-content>
                     </v-list-item>
                   </v-list>
@@ -197,7 +196,6 @@
               </v-card>
             </v-dialog>
           </v-card-actions>
-
 
         </div>
 
@@ -301,6 +299,7 @@ export default {
         rating: null,
         text: ''
       },
+      reviews:[],
       token: '',
       username: '',
       isAdmin: false,
@@ -468,14 +467,19 @@ export default {
       }
     },
 
-    fetchReviews() {
-      axios.get('/api/reviews')
-        .then(response => {
-          this.reviews = response.data;
-        })
-        .catch(error => {
-          console.error('There was an error fetching the reviews!', error);
-        });
+    async fetchReviews() {
+
+        try {
+          const _id = product._id;
+          const response = await axios.get(`https://localhost:3000/api/reviews/${_id}`);
+          product.reviews = response.data;
+          this.showReviewsDialog = true;
+
+        } catch (error) {
+          console.error(`Error fetching rating for product ${_id}:`, error);
+          product.reeviews = null;
+        }
+      },
 
     async updateName(productId, newName) {
       console.log('updateName called with:', productId, newName); // Debug
