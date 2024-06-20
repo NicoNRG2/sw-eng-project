@@ -157,46 +157,48 @@
           </v-col>
         </v-card-text>
 
+        <v-card-actions>
+          <v-dialog v-model="showReviewsDialog" max-width="600">
+            <template v-slot:activator="{ props: activatorProps }">
+              <v-btn
+                class="rounded-xl"
+                color="brown lighten-1"
+                text="Show reviews"
+                block
+                border
+                v-bind="activatorProps"
+                @click="fetchReviews(product._id)"
+              >
+              </v-btn>
+            </template>
+    
+            <v-card title="Reviews">
+              <v-card-text>
+                <v-list>
+                  <v-list-item
+                    v-for="review in reviews"
+                    :key="review._id"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>{{ review.comment }}</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn text="Close" variant="plain" @click="showReviewsDialog = false"></v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-card-actions>
+
+
         <div v-if="!isAdmin && username">
 
           <v-divider class="mx-4 mb-1"></v-divider>
 
-          <v-card-actions>
-            <v-dialog v-model="showReviewsDialog" max-width="600">
-              <template v-slot:activator="{ props: activatorProps }">
-                <v-btn
-                  class="rounded-xl"
-                  color="brown lighten-1"
-                  text="Show reviews"
-                  block
-                  border
-                  v-bind="activatorProps"
-                  @click="fetchReviews(product._id)"
-                >
-                </v-btn>
-              </template>
-      
-              <v-card title="Reviews">
-                <v-card-text>
-                  <v-list>
-                    <v-list-item
-                      v-for="review in reviews"
-                      :key="review._id"
-                    >
-                      <v-list-item-content>
-                        <v-list-item-title>{{ review.comment }}</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn text="Close" variant="plain" @click="showReviewsDialog = false"></v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-card-actions>
 
           <v-col cols="12">
             <v-menu transition="scroll-x-transition">
