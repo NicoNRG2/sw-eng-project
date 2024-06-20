@@ -82,15 +82,16 @@
             { title: 'Pending', value: 'pending' },
             { title: 'Completed', value: 'completed' },
         ],
+        token: '',
         isAdmin: false,
         userId: null,
         username: null,
       };
     },
     created() {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const decodedToken = jwtDecode(token);
+      this.token = localStorage.getItem('token');
+      if (this.token) {
+        const decodedToken = jwtDecode(this.token);
         this.userId = decodedToken.userId;
         this.username = decodedToken.username;
         this.checkAdmin();
@@ -102,8 +103,7 @@
         const url = this.isAdmin
           ? 'https://localhost:3000/api/reservations'
           : `https://localhost:3000/api/reservations/user/${this.userId}`;
-        axios
-          .get(url)
+        axios.get(url, { headers: { Authorization: `Bearer ${this.token}` } })
           .then((response) => {
             this.reservations = response.data;
           })
@@ -113,7 +113,7 @@
       },
       async deleteReservation(id) {
         try {
-          await axios.delete(`https://localhost:3000/api/reservations/${id}`);
+          await axios.delete(`https://localhost:3000/api/reservations/${id}`, { headers: { Authorization: `Bearer ${this.token}` } });
           this.fetchOrders();
         } catch (error) {
           console.error('Error deleting reservation:', error);
@@ -123,7 +123,7 @@
         try {
           await axios.put(`https://localhost:3000/api/reservations/${reservation._id}`, {
             status: reservation.status,
-          });
+          }, { headers: { Authorization: `Bearer ${this.token}` } });
           console.log('Reservation status updated');
         } catch (error) {
           console.error('Error updating reservation status:', error);

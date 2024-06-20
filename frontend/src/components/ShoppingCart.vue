@@ -139,6 +139,7 @@
       data() {
         return {
           shoppingCart: '',
+          token: '',
           dialog: false,
           pickupTime: ''
         }
@@ -152,9 +153,9 @@
         },
       },
       created() {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const decodedToken = jwtDecode(token);
+        this.token = localStorage.getItem('token');
+        if (this.token) {
+          const decodedToken = jwtDecode(this.token);
           this.userId = decodedToken.userId;
           if (this.userId) {
             this.getShoppingCart(this.userId);
@@ -171,7 +172,7 @@
             }
             return item;
           });
-          axios.put(`https://localhost:3000/api/shopping-cart/${this.shoppingCart._id}`, { items: updatedItems })
+          axios.put(`https://localhost:3000/api/shopping-cart/${this.shoppingCart._id}`, { items: updatedItems }, { headers: { Authorization: `Bearer ${this.token}` } })
             .then(response => {
               this.shoppingCart = response.data;
             })
@@ -189,7 +190,7 @@
                 pickupTime: this.pickupTime,
                 userId: this.userId,
                 items: this.shoppingCart.items,
-              });
+              }, { headers: { Authorization: `Bearer ${this.token}` } });
               this.dialog = false;
               // empty the shopping cart ----------------------------todo---------------------
               this.$router.push('/orders');
@@ -211,7 +212,7 @@
         },
         async removeItem(item) {
           try {
-            await axios.post(`https://localhost:3000/api/shopping-cart/remove`, { userId: this.userId, productId: item.productId._id });
+            await axios.post(`https://localhost:3000/api/shopping-cart/remove`, { userId: this.userId, productId: item.productId._id }, { headers: { Authorization: `Bearer ${this.token}` } });
             this.getShoppingCart(this.userId);
           } catch (error) {
             console.error('Error removing item from cart:', error);

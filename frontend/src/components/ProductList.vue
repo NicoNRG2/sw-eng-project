@@ -282,6 +282,9 @@
       </v-card>
     </v-col>
   </v-row>
+  <v-snackbar v-model="snackbar.show" :timeout="3000" bottom>
+    {{ snackbar.text }}
+  </v-snackbar>
 </template>
 
 <script>
@@ -298,6 +301,7 @@ export default {
         rating: null,
         text: ''
       },
+      token: '',
       username: '',
       isAdmin: false,
       showAddProductDialog: false,
@@ -310,6 +314,10 @@ export default {
         vegan: false,
         gluten_free: false,
       },
+      snackbar: {
+        show: false,
+        text: ''
+      }
     };
   },
   computed: {
@@ -322,9 +330,9 @@ export default {
   },
   created() {
     this.fetchProducts();
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decodedToken = jwtDecode(token);
+    this.token = localStorage.getItem('token');
+    if (this.token) {
+      const decodedToken = jwtDecode(this.token);
       this.userId = decodedToken.userId;
       this.username = decodedToken.username;
       this.checkAdmin();
@@ -336,24 +344,34 @@ export default {
         const response = await fetch('https://localhost:3000/api/shopping-cart/add', {
           method: 'POST',
           headers: {
+            Authorization: `Bearer ${this.token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ userId: this.userId, productId, quantity })
         });
         if (response.ok) {
-          console.log('Product added to cart');
-          // update the UI to reflect the change?
+          this.snackbar.text = 'Product added to cart';
+          this.snackbar.show = true;
         } else {
           const error = await response.json();
           console.error('Failed to add product to cart:', error.message);
+          this.snackbar.text = 'Error adding product to cart';
+          this.snackbar.show = true;
         }
       } catch (error) {
         console.error('Error:', error);
+        this.snackbar.text = 'Connection error';
+          this.snackbar.show = true;
       }
     },
     async addProduct() {
       try {
-        const response = await axios.post('https://localhost:3000/api/products', this.newProduct);
+        const response = await axios.post('https://localhost:3000/api/products', this.newProduct, {
+          headers: {
+            'Authorization': `Bearer ${this.token}`,
+            'Content-Type': 'application/json'
+          }
+        });
         this.showAddProductDialog = false;
         this.resetForm();
         this.fetchProducts();
@@ -388,6 +406,7 @@ export default {
         try {
           const response = await axios.post(`https://localhost:3000/api/products/${product._id}/upload-image`, formData, {
             headers: {
+              'Authorization': `Bearer ${this.token}`,
               'Content-Type': 'multipart/form-data'
             }
           });
@@ -437,6 +456,7 @@ export default {
             user: '665083ca637b64fa4f15573c'
           }, {
             headers: {
+              'Authorization': `Bearer ${this.token}`,
               'Content-Type': 'application/json'
             }
           });
@@ -464,6 +484,7 @@ export default {
           name: newName
         }, {
           headers: {
+            'Authorization': `Bearer ${this.token}`,
             'Content-Type': 'application/json'
           }
         });
@@ -484,6 +505,7 @@ export default {
           price: newPrice
         }, {
           headers: {
+            'Authorization': `Bearer ${this.token}`,
             'Content-Type': 'application/json'
           }
         });
@@ -503,6 +525,7 @@ export default {
           availability: newQuantity
         }, {
           headers: {
+            'Authorization': `Bearer ${this.token}`,
             'Content-Type': 'application/json'
           }
         });
@@ -524,6 +547,7 @@ export default {
           ingredients: ingredientsArray
         }, {
           headers: {
+            'Authorization': `Bearer ${this.token}`,
             'Content-Type': 'application/json'
           }
         });
@@ -539,7 +563,11 @@ export default {
     },
     async deleteProduct(productId) { 
       try { 
-        const response = await axios.delete(`https://localhost:3000/api/products/${productId}`); 
+        const response = await axios.delete(`https://localhost:3000/api/products/${productId}`, {
+          headers: {
+            'Authorization': `Bearer ${this.token}`
+          }
+        });
         console.log('Product deleted successfully: ', response.data); 
         this.fetchProducts(); // Refresh the product list 
       } catch (error) { 

@@ -23,7 +23,7 @@ describe('Shopping Cart API', () => {
     await Product.deleteMany({});
 
     // Create a user
-    const user = new User({ username: 'testuser', email: 'testuser@example.com', password: 'password123' });
+    const user = new User({ username: 'testuser1', email: 'testuser1@example.com', password: 'password123' });
     await user.save();
     userId = user._id;
     userToken = jwt.sign({ userId: user._id, username: user.username }, 'EbVkQJufAyrTFJGf', { expiresIn: '1h' });

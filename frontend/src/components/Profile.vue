@@ -62,15 +62,16 @@ export default {
   data() {
     return {
       userData: {},
+      token: '',
       snackbar: false,
       snackbarText: '',
       snackbarColor: '',
     };
   },
   created() {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decodedToken = jwtDecode(token);
+    this.token = localStorage.getItem('token');
+    if (this.token) {
+      const decodedToken = jwtDecode(this.token);
       this.userId = decodedToken.userId;
     }
     this.fetchUser(this.userId);
@@ -95,6 +96,10 @@ export default {
           email: this.userData.email,
           username: this.userData.username,
           password: this.userData.password,
+        }, {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
         });
         
         this.snackbarText = 'User updated successfully!';
