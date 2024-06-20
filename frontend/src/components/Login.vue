@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axiosOnRender from '@/../axiosConfig';
 
 export default {
   name: 'Login',
@@ -68,7 +68,7 @@ export default {
 
     async login() {
       try {
-        const response = await axios.post('https://localhost:3000/api/users/login', {
+        const response = await axiosOnRender.post('/api/users/login', {
           username: this.username,
           password: this.password,
         });

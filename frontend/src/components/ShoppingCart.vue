@@ -129,7 +129,7 @@
   </template>
   
   <script>
-  import axios from 'axios';  
+  import axiosOnRender, { BASE_URL } from '@/../axiosConfig';  
   import { jwtDecode } from 'jwt-decode';
 
     export default {
@@ -167,7 +167,7 @@
             }
             return item;
           });
-          axios.put(`https://localhost:3000/api/shopping-cart/${this.shoppingCart._id}`, { items: updatedItems }, { headers: { Authorization: `Bearer ${this.token}` } })
+          axiosOnRender.put(`/api/shopping-cart/${this.shoppingCart._id}`, { items: updatedItems }, { headers: { Authorization: `Bearer ${this.token}` } })
             .then(response => {
               if (response.data.message === 'ok') {
                 this.shoppingCart.items = updatedItems;
@@ -184,7 +184,7 @@
         async createReservation() {
           if (this.$refs.form.validate()) {
             try {
-              const response = await axios.post(`https://localhost:3000/api/reservations`, {
+              const response = await axiosOnRender.post(`/api/reservations`, {
                 pickupTime: this.pickupTime,
                 userId: this.userId,
                 items: this.shoppingCart.items,
@@ -201,7 +201,7 @@
         async emptyCart() {
           try {
             const removeItemPromises = this.shoppingCart.items.map(item =>
-              axios.post(`https://localhost:3000/api/shopping-cart/remove`, 
+            axiosOnRender.post(`/api/shopping-cart/remove`, 
                 { userId: this.userId, productId: item.productId._id }, 
                 { headers: { Authorization: `Bearer ${this.token}` } })
             );
@@ -214,7 +214,7 @@
         },
         async getShoppingCart(userId){
           try {
-              const response = await axios.get(`https://localhost:3000/api/shopping-cart/user/${userId}`);
+              const response = await axiosOnRender.get(`/api/shopping-cart/user/${userId}`);
               const shoppingCart = response.data;
               
               this.shoppingCart = shoppingCart;
@@ -224,7 +224,7 @@
         },
         async removeItem(item) {
           try {
-            await axios.post(`https://localhost:3000/api/shopping-cart/remove`, { userId: this.userId, productId: item.productId._id }, { headers: { Authorization: `Bearer ${this.token}` } });
+            await axiosOnRender.post(`/api/shopping-cart/remove`, { userId: this.userId, productId: item.productId._id }, { headers: { Authorization: `Bearer ${this.token}` } });
             this.getShoppingCart(this.userId);
           } catch (error) {
             console.error('Error removing item from cart:', error);
@@ -232,7 +232,7 @@
         },
         getImage(product) {
           return product.images
-            ? `https://localhost:3000/uploads/${product.images}`
+            ? `{ BASE_URL }/uploads/${product.images}`
             : 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp';
     },
       },

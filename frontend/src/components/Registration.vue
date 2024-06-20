@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axiosOnRender from '@/../axiosConfig';
 
 export default {
   name: 'Register',
@@ -86,7 +86,7 @@ export default {
         password: this.password
       };
       try {
-        const response = await axios.post('https://localhost:3000/api/users', user);
+        const response = await axiosOnRender.post('/api/users', user);
         console.log('User registered successfully:', response.data);
         this.snackbarText = 'Registration successful! Please proceed to login.';
         this.snackbarColor = 'green';

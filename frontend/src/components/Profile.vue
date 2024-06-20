@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axiosOnRender from '@/../axiosConfig';
 import { jwtDecode } from 'jwt-decode';
 
 export default {
@@ -79,7 +79,7 @@ export default {
   methods: {
     async fetchUser(userId){
       try {
-          const response = await axios.get(`https://localhost:3000/api/users/${userId}`);
+          const response = await axiosOnRender.get(`/api/users/${userId}`);
           const userData = response.data;
           
           this.userData = userData;
@@ -90,7 +90,7 @@ export default {
     },
     async updateUser() {
       try {
-        await axios.put(`https://localhost:3000/api/users/${this.userData._id}`, {
+        await axiosOnRender.put(`/api/users/${this.userData._id}`, {
           name: this.userData.name,
           surname: this.userData.surname,
           email: this.userData.email,
