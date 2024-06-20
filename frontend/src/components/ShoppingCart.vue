@@ -92,13 +92,11 @@
             <v-divider class="my-2"></v-divider>
             <div class="d-flex justify-space-between">
               <span>Total:</span>
-              <span>{{ shoppingCart.totalPrice }} €</span>
+              <span>{{ formattedTotalPrice }} €</span>
             </div>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="brown lighten-1" block @click="proceedToCheckout"
-              >Proceed to checkout</v-btn
-            >
+            <v-btn color="brown lighten-1" block @click="proceedToCheckout">Proceed to checkout</v-btn>
           </v-card-actions>
         </v-card>
       </div>
@@ -145,12 +143,9 @@
         }
       },
       computed: {
-        totalPrice() {
-          const total = this.cartItems.reduce((total, item) => {
-            return total + item.price * item.quantity
-          }, 0)
-          return total.toFixed(2)
-        },
+        formattedTotalPrice() {
+          return this.shoppingCart.totalPrice ? this.shoppingCart.totalPrice.toFixed(2) : '0.00';
+        }
       },
       created() {
         this.token = localStorage.getItem('token');
@@ -174,7 +169,10 @@
           });
           axios.put(`https://localhost:3000/api/shopping-cart/${this.shoppingCart._id}`, { items: updatedItems }, { headers: { Authorization: `Bearer ${this.token}` } })
             .then(response => {
-              this.shoppingCart = response.data;
+              if (response.data.message === 'ok') {
+                this.shoppingCart.items = updatedItems;
+                console.log('Cart updated successfully');
+              }
             })
             .catch(error => {
               console.error('Error updating cart:', error);
@@ -192,11 +190,26 @@
                 items: this.shoppingCart.items,
               }, { headers: { Authorization: `Bearer ${this.token}` } });
               this.dialog = false;
-              // empty the shopping cart ----------------------------todo---------------------
+              // empty the shopping cart
+              emptyCart();
               this.$router.push('/orders');
             } catch (error) {
               console.error('Error creating reservation:', error);
             }
+          }
+        },
+        async emptyCart() {
+          try {
+            const removeItemPromises = this.shoppingCart.items.map(item =>
+              axios.post(`https://localhost:3000/api/shopping-cart/remove`, 
+                { userId: this.userId, productId: item.productId._id }, 
+                { headers: { Authorization: `Bearer ${this.token}` } })
+            );
+            await Promise.all(removeItemPromises);
+            this.shoppingCart.items = [];
+            console.log("Cart emptied successfully");
+          } catch (error) {
+            console.error('Error emptying cart:', error);
           }
         },
         async getShoppingCart(userId){
@@ -205,7 +218,6 @@
               const shoppingCart = response.data;
               
               this.shoppingCart = shoppingCart;
-
             } catch (error) {
               console.error('Error fetching cart or product details:', error);
           }

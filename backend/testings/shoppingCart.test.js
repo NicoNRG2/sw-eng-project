@@ -108,8 +108,7 @@ describe('Shopping Cart API', () => {
         });
 
       expect(res.statusCode).toEqual(200);
-      expect(res.body).toHaveProperty('_id');
-      expect(res.body.items[0]).toHaveProperty('quantity', 3);
+      expect(res.body).toHaveProperty('message', 'ok');
     });
 
     it('should return 404 if the shopping cart is not found', async () => {

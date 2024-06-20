@@ -59,7 +59,7 @@ const updateCart = async (req, res) => {
 
     cart.items = req.body.items;
     await cart.save();
-    res.json(cart);
+    res.status(200).json({ message: 'ok' });
   } catch (error) {
     if (error.kind === 'ObjectId' || error.name === 'CastError') {
       return res.status(404).json({ message: 'Cart not found' });
