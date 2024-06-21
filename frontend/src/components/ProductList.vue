@@ -420,6 +420,8 @@ export default {
     getImage(product) {
       return product.images
         ? `https://localhost:3000/uploads/${product.images}`
+      return product.images
+        ? `https://localhost:3000/uploads/${product.images}`
         : 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp';
     },
     async fetchProducts() {
