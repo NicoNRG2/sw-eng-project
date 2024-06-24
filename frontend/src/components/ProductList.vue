@@ -423,7 +423,10 @@ export default {
         : 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp';
     },
     async fetchProducts() {
-      const filter = this.$route.query.type || '';
+      let filter = this.$route.query.type || '';
+      if(filter == 'Gluten Free'){
+        filter = 'gluten_free';
+      }
       try {
         const response = await axios.get(`https://localhost:3000/api/products/type/${filter}`);
         this.products = response.data;
