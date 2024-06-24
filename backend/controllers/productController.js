@@ -31,7 +31,7 @@ const getProductsByType = async (req, res) => {
     const { type } = req.params;
     let query = {};
 
-    if (['Bread', 'Wholemeal Flour', 'Fresh Pasta', 'Sweets', 'Savory'].includes(type)) {
+    if (['Bread', 'Desserts', 'Wholemeal Flour', 'Fresh Pasta', 'Sweets', 'Savory'].includes(type)) {
       query.category = type;
     } else {
       // Check for gluten-free or vegan boolean filters

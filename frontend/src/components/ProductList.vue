@@ -157,125 +157,124 @@
           </v-col>
         </v-card-text>
 
+        <v-divider class="mx-4 mb-1"></v-divider>
+
         <v-card-actions>
-          <v-dialog v-model="showReviewsDialog" max-width="600" @click:outside="resetReviews">
-            <template v-slot:activator="{ props: activatorProps }">
+          <v-btn
+            class="rounded-xl"
+            color="brown lighten-1"
+            text="Show reviews"
+            block
+            border
+            @click="fetchReviews(product._id); resetReviews()"
+          ></v-btn>
+        </v-card-actions>
+
+          <div v-if="!isAdmin && username">
+
+            <v-col cols="12">
+              <v-menu transition="scroll-x-transition">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    class="rounded-xl"
+                    color="brown lighten-1"
+                    text="Add to cart"
+                    block
+                    border
+                    v-bind="props"
+                  ></v-btn>
+                </template>
+                <v-list class="rounded-xl" :style="{ height: '200px', overflow: 'auto' }">
+                  <v-list-item v-for="n in product.availability" :key="n" link @click="addToCart(product._id, n)">
+                    <v-list-item-title v-text="n"></v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </v-col>
+
+            <v-card-actions>
               <v-btn
                 class="rounded-xl"
                 color="brown lighten-1"
-                text="Show reviews"
+                text="Leave a review"
                 block
                 border
-                v-bind="activatorProps"
-                @click="fetchReviews(product._id); resetReviews()"
-              >
-              </v-btn>
-            </template>
-    
-            <v-card title="Reviews">
-              <v-card-text>
-                <v-list>
-                  <v-list-item
-                    v-for="review in reviews"
-                    :key="review._id"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title>{{ review.comment }}</v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list>
-              </v-card-text>
-              <v-divider></v-divider>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn text="Close" variant="plain" @click="showReviewsDialog = false"></v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-card-actions>
-
-
-        <div v-if="!isAdmin && username">
-
-          <v-divider class="mx-4 mb-1"></v-divider>
-
-
-          <v-col cols="12">
-            <v-menu transition="scroll-x-transition">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  class="rounded-xl"
-                  color="brown lighten-1"
-                  text="Add to cart"
-                  block
-                  border
-                  v-bind="props"
-                ></v-btn>
-              </template>
-              <v-list class="rounded-xl" :style="{ height: '200px', overflow: 'auto' }">
-                <v-list-item v-for="n in product.availability" :key="n" link @click="addToCart(product._id, n)">
-                  <v-list-item-title v-text="n"></v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-col>
-
-          <v-card-actions>
-            <v-dialog v-model="dialog" max-width="600">
-              <template v-slot:activator="{ props: activatorProps }">
-                <v-btn
-                  class="rounded-xl"
-                  color="brown lighten-1"
-                  text="Leave a review"
-                  block
-                  border
-                  v-bind="activatorProps"
-                ></v-btn>
-              </template>
-
-              <v-card prepend-icon="mdi-message-draw" title="Leave a review!">
-                <v-card-text>
-                  <v-col>
-                    <v-rating
-                      v-model="review.rating"
-                      color="amber"
-                      density="compact"
-                      size="x-large"
-                      half-increments
-                      hover
-                    ></v-rating>
-                    <v-text-field
-                      v-model="review.text"
-                      hint="Write your review, and be nice :D"
-                      label="Review"
-                      clearable
-                    ></v-text-field>
-                  </v-col>
-                  <small class="text-caption text-medium-emphasis">all fields are required</small>
-                </v-card-text>
-
-                <v-divider></v-divider>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-
-                  <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
-
-                  <v-btn
-                    :disabled="!isFormValid"
-                    color="brown lighten-1"
-                    text="Save"
-                    variant="tonal"
-                    @click="saveReview(product._id)"
-                  ></v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-card-actions>
-
-        </div>
+                @click="openReviewsDialog(product._id)"
+              ></v-btn>
+            </v-card-actions>
+          </div>
       </v-card>
     </v-col>
+
+    <v-dialog v-model="showReviewsDialog" max-width="600" @click:outside="resetReviews">
+
+      <v-card title="Reviews">
+        <v-card-text>
+          <v-list>
+            <v-list-item v-for="review in reviews" :key="review._id">
+              <v-list-item-title>{{ review.comment }}</v-list-item-title>
+              <v-list-item-subtitle>
+                <v-rating
+                  :model-value="review.rating"
+                  color="amber"
+                  density="compact"
+                  size="small"
+                  half-increments
+                  readonly
+                ></v-rating>
+              </v-list-item-subtitle>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text="Close" variant="plain" @click="showReviewsDialog = false"></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialog" max-width="600">
+
+      <v-card prepend-icon="mdi-message-draw" title="Leave a review!">
+        <v-card-text>
+          <v-col>
+            <v-rating
+              v-model="review.rating"
+              color="amber"
+              density="compact"
+              size="x-large"
+              half-increments
+              hover
+            ></v-rating>
+            <v-text-field
+              v-model="review.text"
+              hint="Write your review, and be nice :D"
+              label="Review"
+              clearable
+            ></v-text-field>
+          </v-col>
+          <small class="text-caption text-medium-emphasis">all fields are required</small>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
+
+          <v-btn
+            :disabled="!isFormValid"
+            color="brown lighten-1"
+            text="Save"
+            variant="tonal"
+            @click="saveReview()"
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </v-row>
   <v-snackbar v-model="snackbar.show" :timeout="3000" bottom>
     {{ snackbar.text }}
@@ -293,6 +292,7 @@ export default {
       dialog: false,
       products: [],
       review: {
+        productId: '',
         rating: null,
         text: ''
       },
@@ -421,7 +421,10 @@ export default {
         : 'https://cdn.iconscout.com/icon/free/png-256/free-vue-282497.png?f=webp';
     },
     async fetchProducts() {
-      const filter = this.$route.query.type || '';
+      let filter = this.$route.query.type || '';
+      if(filter == 'Gluten Free'){
+        filter = 'gluten_free';
+      }
       try {
         const response = await axiosOnRender.get(`/api/products/type/${filter}`);
         this.products = response.data;
@@ -433,8 +436,8 @@ export default {
       }
     },
     async fetchProductRating(product) {
+      const _id = product._id;
       try {
-        const _id = product._id;
         const response = await axiosOnRender.get(`/api/reviews/average/${_id}`);
         product.ratingData = response.data;
       } catch (error) {
@@ -442,16 +445,14 @@ export default {
         product.ratingData = null;
       }
     },
-    async saveReview(productId) {
-      this.dialog = false;
+    async saveReview() {
       if (this.isFormValid) {
         try {
-          console.log(this.review.comment);
           const response = await axiosOnRender.post('/api/reviews', {
             rating: this.review.rating,
             comment: this.review.text,
-            product: productId,
-            user: '665083ca637b64fa4f15573c'
+            product: this.review.productId,
+            user: this.userId,
           }, {
             headers: {
               'Authorization': `Bearer ${this.token}`,
@@ -460,6 +461,13 @@ export default {
           });
 
           console.log('Review saved succesfully: ', response.data);
+          this.fetchProducts();
+          this.review = {
+            productId: '',
+            rating: null,
+            text: ''
+          };
+          this.dialog = false;
         } catch (error) {
           console.error('Error saving review: ', error);
         }
@@ -476,6 +484,10 @@ export default {
       console.error(`Error fetching reviews for product ${productId}:`, error);
     }
   },
+  openReviewsDialog(productId) {
+      this.dialog = true;
+      this.review.productId = productId;
+    },
     async updateName(productId, newName) {
       console.log('updateName called with:', productId, newName); // Debug
       try {
