@@ -341,27 +341,29 @@ export default {
     },
     async addToCart(productId, quantity) {
       try {
-        const response = await fetch('https://localhost:3000/api/shopping-cart/add', {
-          method: 'POST',
+        const response = await axios.post('https://localhost:3000/api/shopping-cart/add', {
+          userId: this.userId,
+          productId: productId,
+          quantity: quantity
+        }, {
           headers: {
             Authorization: `Bearer ${this.token}`,
             'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ userId: this.userId, productId, quantity })
+          }
         });
-        if (response.ok) {
+        console.log(response);
+        if (response.status === 201) {
           this.snackbar.text = 'Product added to cart';
           this.snackbar.show = true;
         } else {
-          const error = await response.json();
-          console.error('Failed to add product to cart:', error.message);
+          console.error('Failed to add product to cart:', response.data.message);
           this.snackbar.text = 'Error adding product to cart';
           this.snackbar.show = true;
         }
       } catch (error) {
         console.error('Error:', error);
         this.snackbar.text = 'Connection error';
-          this.snackbar.show = true;
+        this.snackbar.show = true;
       }
     },
     async addProduct() {
